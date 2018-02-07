@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../static/bootstrap/css/bootstrap.min.css" />
+<link rel="stylesheet" href="../static/zTree_v3/css//demo.css" type="text/css">
+<link rel="stylesheet" href="../static/zTree_v3/css/zTreeStyle/zTreeStyle.css" type="text/css">
+</head>
+<body>
+	<div class="container">
+		<div class="row">
+			<div class="col-md-4">
+				<ul id="jmx" class="ztree" style="min-height:800px;min-width:370px;background-color:#fff;"></ul>
+			</div>
+			<div class="col-md-8">
+				<div id="info"></div>
+			</div>
+		</div>
+	</div>
+	
+	<script src="../static/js/jquery-3.2.1.js" type="text/javascript"></script>
+	<!-- <script src="../static/zTree_v3/js/jquery-1.4.4.min.js" type="text/javascript"></script> -->
+	<script src="../static/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
+	<script src="../static/zTree_v3/js/jquery.ztree.core.js" type="text/javascript"></script>
+	<script src="../static/js/util.js" type="text/javascript"></script>
+  	<script type="text/javascript">
+  		/**节点type说明  0:包名节点；1.mbean节点；2.属性节点；3.方法节点；4.通知节点,5 .属性子节点；6.方法子节点 ；7.通知子节点**/
+  		var jvmId = gerUrlParam("id");
+  		var info = $("#info");
+  		var treeName="jmx"
+  		var nodeNum = 9999999;
+		var zTreeObj;
+		/**缓存MBean信息 key:ObjectName,value:info**/
+		var jmxInfoCache={};//;
+		var isClick =false;
+   		var setting = {
+			callback:{
+				onClick:function(e,treeId,treeNode){
+					if(isClick){
+						return;
+					}
+					isClick = true;
+					if(treeNode.type==1){//获取Mbean节点的信息，包括其属性，方法和通知;
+						if(treeNode.children==null){
+							$.post("/jmx/tree/nodeInfo.json", {"jvmId":jvmId,"objectName":treeNode.objectName}, function(result) {
+								console.log(JSON.stringify(result));
+								result.attributes.sort(treesortPolice);
+								result.operations.sort(treesortPolice);
+								result.notifications.sort(treesortPolice);
+								jmxInfoCache[treeNode.objectName]=result;
+								addNode(treeNode);
+								showMBeanInfo(treeNode.objectName);
+							});
+						}else{
+							showMBeanInfo(treeNode.objectName);
+						}
+					}else if(treeNode.type == 2){//MBean--属性,获取全部属性节点的值；
+						var data = jmxInfoCache[treeNode.objectName].attributes;
+						info.empty();
+						var params={"objectName":treeNode.objectName,"jvmId":jvmId};
+						var attrNames = [];
+						for(var i = 0 ;i < data.length ;i++){
+							attrNames.push(data[i].name);
+						}
+						params.attrNames=attrNames
+						$.post("/jmx/tree/attribute/value", params, function(result) {
+							console.log(JSON.stringify(result));
+							info.append($("<div>").append("~~~~~~~~~~~~属性值"));
+							for(var i = 0 ;i < data.length ;i++){
+								info.append($("<div>").append(data[i].type+" "+data[i].name+"="+jsonFormatToHtml(JSON.stringify(result[data[i].name]))));
+							}
+						});
+						
+					}else if(treeNode.type == 3){//MBean--方法 ，显示全部方法
+						var data = jmxInfoCache[treeNode.objectName].operations;
+						info.empty();
+						for(var i = 0 ;i < data.length ;i++){
+							var method = data[i];
+							var btn=$("<a>",{"class":"btn btn-default method","role":"button","href":"#","objectName":treeNode.objectName,"arrIndex":i}).append(method.name);
+							//注意这里的index属性，为该方法在数组中的位置；为了防止出现同名，但是参数不同的方法；
+							var functionName = $("<div>").append(method.returnType+" ").append(btn).append("(");
+							var params = method.signature;
+							for(var j = 0 ; j < params.length ; j++){
+								if(j == 0){
+									functionName.append(params[j].type+" "+params[j].name).append("<input type=\"text\">");
+								}else{
+									functionName.append(" , "+params[j].type+" "+params[j].name).append("<input type=\"text\">");
+								}
+							}
+							functionName.append(")");
+							info.append(functionName);
+						}
+					}else if(treeNode.type == 4){//MBean -- 通知 , 显示通知信息
+						var data = jmxInfoCache[treeNode.objectName].notifications;
+						info.empty();
+						for(var i = 0 ;i < data.length ;i++){
+							var notification = data[i];
+							info.append($("<div>").append("名称："+notification.name));
+							info.append($("<div>").append("说明："+notification.description));
+							info.append($("<div>").append("类型："+notification.notifTypes));
+							var btn=$("<a>",{"class":"btn btn-default notificationBtn","role":"button","href":"#","objectName":treeNode.objectName}).append("订阅");
+							info.append(btn);
+						}
+					}else if(treeNode.type == 5) {//MBean--属性--某一属性，显示改属性的值
+						var data = jmxInfoCache[treeNode.objectName].attributes;
+						var itemData;
+						for(var i =0 ;i<data.length;i++){
+							if(data[i].name == treeNode.name){
+								itemData = data[i];
+								break;
+							}
+						}
+						info.empty();
+						var params={"objectName":treeNode.objectName,"jvmId":jvmId};
+						params.attrNames = [treeNode.name];
+						$.post("/jmx/tree/attribute/value", params, function(result) {
+							info.append($("<div>").append("~~~~~~~~~~~~属性值"));
+							info.append($("<div>").append(itemData.type+" "+itemData.name+"="+jsonFormatToHtml(JSON.stringify(result[itemData.name]))));
+							info.append($("<div>").append("~~~~~~~~~~~~MBeanAttributeInfo"));
+							info.append($("<div>").append("名称:"+itemData.name));
+							info.append($("<div>").append("说明:"+itemData.description));
+							info.append($("<div>").append("可读:"+itemData.readable));
+							info.append($("<div>").append("可写:"+itemData.writable));
+							info.append($("<div>").append("类型:"+itemData.type));
+							info.append($("<div>").append("is:"+itemData.is));
+							var list = itemData.descriptor.fields;
+							info.append($("<div>").append("~~~~~~~~~~~~描述符"));
+							info.append($("<div>").append(list[0]));
+							info.append($("<div>").append(list[1]));
+						});
+					}else if (treeNode.type == 6) {//MBean--方法--某一方法，显示某一方法详细信息
+						
+						var data = jmxInfoCache[treeNode.objectName].operations;
+						var itemData=data[treeNode.operation_index];
+						/* for(var i =0 ;i<data.length;i++){
+							if(data[i].name == treeNode.name){
+								itemData = data[i];
+								break;
+							}
+						} */
+						var params={"objectName":treeNode.objectName,"jvmId":jvmId};
+						params.methodNames = [treeNode.name];
+						info.empty();
+						var method = itemData;
+						var btn=$("<a>",{"class":"btn btn-default method","role":"button","href":"#","objectName":treeNode.objectName,"arrIndex":treeNode.operation_index}).append(method.name);
+						var functionName = $("<div>").append(method.returnType+" ").append(btn).append("(");
+						var params = method.signature;
+						for(var j = 0 ; j < params.length ; j++){
+							if(j == 0){
+								functionName.append(params[j].type+" "+params[j].name).append("<input type=\"text\">");
+							}else{
+								functionName.append(" , "+params[j].type+" "+params[j].name).append("<input type=\"text\">");
+							}
+						}
+						functionName.append(")");
+						info.append($("<div>").append("~~~~~~~~~~~~操作调用"));
+						info.append(functionName);
+						info.append($("<div>").append("~~~~~~~~~~~~MBeanOperationInfo"));
+						info.append($("<div>").append("名称:"+method.name));
+						info.append($("<div>").append("说明:"+method.description));
+						info.append($("<div>").append("返回类型:"+method.returnType));
+						for(var j = 0 ; j < params.length ; j++){
+							info.append($("<div>").append("参数-"+j));
+							info.append($("<div>").append("名称"+params[j].name));
+							info.append($("<div>").append("说明"+params[j].description));
+							info.append($("<div>").append("类型"+params[j].type));
+						}
+					}else{
+						info.empty();
+					}
+					isClick = false;
+				}
+			}
+   		};
+   		
+   		function showMBeanInfo(objectName){
+   			var data = jmxInfoCache[objectName];
+   			info.empty();
+   			info.append($("<div>").append("objectName:").append(objectName));
+   			info.append($("<div>").append("className:").append(data.className));
+   			info.append($("<div>").append("description:").append(data.description));
+   		}
+   		
+   	   /**
+   		*添加Mbean子节点
+   		**/ 
+   		function addNode(parentNode){
+   			if(parentNode.children!=null){
+   				return;
+   			}
+   			var data = jmxInfoCache[parentNode.objectName];
+   			var attributes = data.attributes;
+   			var operations = data.operations;
+   			var notifications = data.notifications;
+   			
+   			if(attributes.length>0){
+   				zTreeObj.addNodes(parentNode, {"Tid":treeName+"_"+nodeNum++,"parentTid":parentNode.tId,"name":"属性","type":2,"objectName":parentNode.objectName}, true);
+   			}
+   			if(operations.length>0){
+   				zTreeObj.addNodes(parentNode, {"Tid":treeName+"_"+nodeNum++,"parentTid":parentNode.tId,"name":"方法","type":3,"objectName":parentNode.objectName}, true);
+   			}
+   			if(notifications.length > 0){
+   				zTreeObj.addNodes(parentNode, {"Tid":treeName+"_"+nodeNum++,"parentTid":parentNode.tId,"name":"通知","type":4,"objectName":parentNode.objectName}, true);
+   			}
+   			var nodes = zTreeObj.getSelectedNodes();
+   			for (var i=0, l=nodes.length; i<l; i++) {
+   				zTreeObj.expandNode(nodes[i], true, null, null, true);
+   			} 
+   			var children = parentNode.children;
+   			for(var j=0 ;j < children.length ;j++){
+   				if(children[j].type==2){
+   					for(var i =0; i< attributes.length ;i++){
+   		   				zTreeObj.addNodes(children[j], {"Tid":treeName+"_"+nodeNum++,"parentTid":children[j].tId,"name":attributes[i].name,"type":5,"objectName":parentNode.objectName}, true);
+   		   			}
+   				}else if(children[j].type==3){
+   					for(var i =0; i< operations.length ;i++){
+   		   				zTreeObj.addNodes(children[j], {"Tid":treeName+"_"+nodeNum++,"parentTid":children[j].tId,"name":operations[i].name,"type":6,"objectName":parentNode.objectName,"operation_index":i}, true);
+   		   			}
+   				}else if(children[j].type==4){
+   					for(var i =0; i< notifications.length ;i++){
+   		   				zTreeObj.addNodes(children[j], {"Tid":treeName+"_"+nodeNum++,"parentTid":children[j].tId,"name":notifications[i].name,"type":7,"objectName":parentNode.objectName}, true);
+   		   			}
+   				}
+   			}
+   			//alert(attributes.length);
+   		}
+   	    //“通知”节点点击时
+   	    $("#info").on("click",".notificationBtn",function(){
+   	    	var objectName = $(this).attr("objectName");
+   	    	window.open("jmxnotification.html?objectName="+objectName+"&jvmId="+jvmId)
+   	    });
+   	   	//点击方法名按钮时
+   		$("#info").on("click",".method",function(){
+   			var objectName = $(this).attr("objectName");
+   			var methodName = $(this).text();
+   			var data = jmxInfoCache[objectName].operations;
+   			console.log($(this).attr("arrIndex"));
+			var itemData = data[parseInt($(this).attr("arrIndex"))];
+			var params={"objectName":objectName,"jvmId":jvmId,"methodName":methodName};
+			var methodParam=[];
+			$(this).parent().find("input").each(function(){
+				methodParam.push($(this).val());
+			});
+			params["params"]=methodParam;
+			var paramType = itemData.signature;
+			var methodParamType = []; 
+			for(var i = 0 ; i< paramType.length ;i++){
+				methodParamType.push(paramType[i].type);
+			}
+			params["signature"]=methodParamType;
+			$.post("/jmx/tree/execute.json", params, function(result) {
+				alert(jsonFormat(JSON.stringify(result)));
+			},"html");
+			
+		});
+   	   
+   		$(document).ready(function(){
+   			$.post("/jmx/tree.json", {"jvmId":jvmId}, function(result) {
+				zTreeObj = $.fn.zTree.init($("#"+treeName), setting, treeChildrenSort(result));
+			});
+   		});
+   		
+   		/**
+   		 *树形节点排序
+   		 **/
+   		function treeChildrenSort(node){
+   			//排序当前数组
+   			node.sort(treesortPolice);
+   			//排序当前数组的下一级
+   			for(var i = 0 ;i < node.length ;i++){
+   				if(node[i].children!=null){
+   					node[i].children=treeChildrenSort(node[i].children);
+   				}
+   			}
+   			return node;
+   		}
+   		
+   		/**
+   		 *排序
+   		 */
+   		function treesortPolice(a,b){
+   			if(a.name < b.name){
+   				return -1;
+   			}else if(a.name == b.name){
+   				return 0;
+   			}else{
+   				return 1;
+   			}
+   		}
+  	</script>
+</body>
+</html>

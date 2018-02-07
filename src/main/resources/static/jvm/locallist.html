@@ -1,0 +1,70 @@
+<!-- <!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1"> 
+<meta http-equiv="refresh" content="60" /> 
+<link rel="stylesheet" href="../static/bootstrap/css/bootstrap.min.css" />
+</head>
+<body>
+-->
+	<div class="container">
+	 
+	<div class="row">
+		<div class="col-xs-12 col-md-10">
+			<h1>本地jvm列表</h1>
+			<h5>显示与本应用部署在同一服务器上的jvm实例列表，包括当前应用进程,当jvm没有开启jmx端口，又不能重启应用时，使用此功能</h5>
+		</div>
+	</div>
+	<table id="localJvms" class="table table-striped  table-hover">
+		<tr>
+		<td>pid</td>
+		<td>名称</td>
+		<td>操作</td>
+		</tr>
+	</table>
+	</div>
+	
+	<script src="../static/js/jquery-3.2.1.js"></script>
+	<!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+	<script src="../static/bootstrap/js/bootstrap.min.js"></script>
+
+	<script type="text/javascript">
+		var container = $("#localJvms");
+		var jvmListContainer = $("#jvms");
+		function show() {
+			$.post("/jvm/localvm/list.json", {}, function(result) {
+				for(var index in result){
+					showJvmToList(result[index]);
+				}
+			});
+		}
+		
+		function showJvmToList(jvm){
+			var tr = $("<tr>");
+			tr.append($("<td>").append(jvm.id));
+			tr.append($("<td>").append(jvm.name=="com.zqz.Bootstart"?jvm.name+"<span style=color:#f00>(当前应用)</span>":jvm.name));
+			var operation = $("<td>");
+			operation.append(
+				$("<a>",{class:"btn btn-default monitorBtn",href:"#",role:"button",jvmId:jvm.id,name:jvm.name}).append("加入监控列表")
+			);
+			tr.append(operation);
+			container.append(tr);
+		}
+		
+		show();
+		
+		$(".container").on("click",".monitorBtn",function(){
+			var self = $(this)
+			$.post("/jvm/localvm/add.json",{"jvmId":self.attr("jvmId")}, function(result) {
+				if(result=="true"){
+					console.log($("#addLocalJVMDialog").get(0));
+					alert("添加成功!")
+					location.reload();
+				}
+			},"html");
+		});
+	</script>
+<!-- </body>
+</html> -->

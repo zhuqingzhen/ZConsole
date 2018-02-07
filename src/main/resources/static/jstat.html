@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- 最新版本的 Bootstrap 核心 CSS 文件 -->
+<link rel="stylesheet" href="bootstrap/css/bootstrap.min.css" />
+</head>
+<body ng-app="app" ng-controller="MainController">
+    <div>
+    	JVM：
+    	<select name="jvms" id="jvms">
+    	</select>
+    	数据更新间隔：
+    	<select name="interval" id="interval">
+    		<option value="200">200ms</option>
+    		<option value="1000">1s</option>
+    		<option value="5000">5s</option>
+    		<option value=""></option>
+    	</select>
+    	
+    	<select name = "cmd" id = "cmd">
+    		<option value="gc">gc</option>
+    		<option value="gcutil">gcutil</option>
+    	</select>
+    	
+    	<div id = "send">send</div>
+    </div>
+    
+<script src="js/jquery-3.2.1.js"></script>
+<!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+<script src="bootstrap/js/bootstrap.min.js"></script>
+<script src="https://cdn.bootcss.com/sockjs-client/1.1.4/sockjs.min.js"></script>
+<script src="https://cdn.bootcss.com/stomp.js/2.3.3/stomp.min.js"></script>
+
+<script type="text/javascript">
+	var stompClient = null;
+	var $scope={};
+	$scope.data= {
+        //连接状态
+        connected : false,
+        //消息
+        message : '',
+        rows : []
+    };
+	
+	$("#jvm").empty();
+	
+	
+    //连接
+    $scope.connect = function() {
+    	//设置连接地址
+        var socket = new SockJS('/my-websocket');
+        stompClient = Stomp.over(socket);
+        
+        //connect(headers, connectCallback, errorCallback);
+        stompClient.connect(
+        	{},//headers为空
+        	function connectCallback(frame) {
+        		// 连接成功时（服务器响应 CONNECTED 帧）的回调方法
+        		console.log('已连接【' + frame + '】');
+            	// 注册发送消息
+            	stompClient.subscribe('/topic/send', function(msg) {
+ 	               	console.log("topic/send:"+msg.body);
+    	        	console.log(JSON.parse(msg.body));
+        	    });
+            	// 注册推送时间回调
+            	stompClient.subscribe('/topic/callback', fu-nction(r) {
+            		console.log("/topic/callback:"+'当前服务器时间：' + r.body);
+                	$scope.data.time = '当前服务器时间：' + r.body;
+                	$scope.data.connected = true;
+            	});
+            	$scope.data.connected = true;
+        	},
+        	function errorCallBack (error) {
+            	// 连接失败时（服务器响应 ERROR 帧）的回调方法
+                console.log('连接失败【' + error + '】');
+                $scope.data.connected = false;
+        	}
+        );
+    };
+    $scope.disconnect = function() {
+        if (stompClient != null) {
+            stompClient.disconnect();
+        }
+        $scope.data.connected = false;
+        console.log("主动断开连接");
+    }
+    $scope.send = function(data) {
+        stompClient.send("/app/send", {}, JSON.stringify(data));
+    }
+    $scope.connect();
+    $("#send").click(function(){
+    	 $scope.send({"message":"sdfasdfa"});
+    });
+</script>
+</body>
+</html>

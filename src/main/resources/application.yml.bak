@@ -1,0 +1,58 @@
+#spring会从classpath下的/config目录或者classpath的根目录查找application.properties或application.yml。
+#/config优先于classpath根目录
+static-locations: classpath:/static/,classpath:/views/templates
+cache-period: 0
+
+management:
+  security:
+    enabled:false
+#mysql和阿里druid配置
+#spring:
+#  datasource:
+#    type: com.alibaba.druid.pool.DruidDataSource
+#    url: jdbc:mysql://192.168.2.174:3306/test
+#    username: root
+#    password: Nbs@2010
+#    driver-class-name: com.mysql.cj.jdbc.Driver
+    # 下面为连接池的补充设置，应用到上面所有数据源中
+    # 初始化大小，最小，最大
+#    initialSize: 10
+#    minIdle: 3
+#    maxActive: 20
+#    # 配置获取连接等待超时的时间
+#    maxWait: 60000
+#    # 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
+#    timeBetweenEvictionRunsMillis: 60000
+    # 配置一个连接在池中最小生存的时间，单位是毫秒
+#    minEvictableIdleTimeMillis: 30000
+#    validationQuery: select 'x'
+##    testWhileIdle: true
+#    testOnBorrow: false
+#    testOnReturn: false
+    # 打开PSCache，并且指定每个连接上PSCache的大小
+#    poolPreparedStatements: true
+#    maxPoolPreparedStatementPerConnectionSize: 20
+    # 配置监控统计拦截的filters，去掉后监控界面sql无法统计，'wall'用于防火墙
+#    filters: stat,wall,slf4j
+    # 通过connectProperties属性来打开mergeSql功能；慢SQL记录
+#    connectionProperties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=5000
+    # 合并多个DruidDataSource的监控数据
+#    useGlobalDataSourceStat: true
+server:
+  port: 8080
+logging:
+  #logback日志目录
+  path: c:/logs
+  file: myapp.log
+  level.*: DEBUG
+druid:
+  #druid 控制台拒绝访问的ip
+  deny: 192.168.5.5
+  #druid 控制台允许访问的ip
+  allow: 127.0.0.1
+  loginUsername: admin
+  loginPassword: 4567
+  resetEnable: false
+mybatis: 
+  mapperLocations: classpath:mapper/*.xml
+  typeAliasesPackage: com.zqz.mapper.model

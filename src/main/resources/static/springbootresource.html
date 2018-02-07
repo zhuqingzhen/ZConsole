@@ -1,0 +1,33 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Insert title here</title>
+</head>
+<body>
+<pre>
+配置资源映射
+
+Spring Boot 默认配置的/**映射到/static（或/public ，/resources，/META-INF/resources），/webjars/**会映射到classpath:/META-INF/resources/webjars/。
+
+注意：上面的/static等目录都是在classpath:下面。
+
+如果你想增加如/mystatic/**映射到classpath:/mystatic/，你可以让你的配置类继承WebMvcConfigurerAdapter，然后重写如下方法：
+
+@Override
+public void addResourceHandlers(ResourceHandlerRegistry registry) {
+    registry.addResourceHandler("/mystatic/**")
+            .addResourceLocations("classpath:/mystatic/");
+}
+
+这种方式会在默认的基础上增加/mystatic/**映射到classpath:/mystatic/，不会影响默认的方式，可以同时使用。
+
+静态资源映射还有一个配置选项，为了简单这里用.properties方式书写：
+
+spring.mvc.static-path-pattern=/** # Path pattern used for static resources.
+
+这个配置会影响默认的/**，例如修改为/static/**后，只能映射如/static/js/sample.js这样的请求（修改前是/js/sample.js）。这个配置只能写一个值，不像大多数可以配置多个用逗号隔开的。
+</pre>
+</body>
+</html>

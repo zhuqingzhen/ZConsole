@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!--  <meta http-equiv="refresh" content="60" /> -->
+<!-- 最新版本的 Bootstrap 核心 CSS 文件 -->
+<link rel="stylesheet" href="../static/bootstrap/css/bootstrap.min.css" />
+</head>
+<body>
+	<div class="container">
+
+		<div class="row">
+			<div class="col-xs-12 col-md-9">
+				<h1>jvm 列表</h1>
+			</div>
+			<div class="col-xs-12 col-md-3" style="line-height: 75px">
+				<a class="btn btn-default" href="#" role="button"
+					data-toggle="modal" data-target="#addRemoteJvm">添加远程jvm</a> <a
+					class="btn btn-default" href="#" role="button" data-toggle="modal"
+					data-target="#addLocalJVMDialog" id="addLocalJVMBtn">添加本地jvm</a>
+			</div>
+		</div>
+		<table id="jvms" class="table table-striped  table-hover">
+			<tr>
+				<td>id</td>
+				<td>名称</td>
+				<td>任务</td>
+				<td>jxm连接</td>
+				<td>操作</td>
+			</tr>
+		</table>
+	</div>
+
+
+	<div id="addLocalJVMDialog" class="modal fade" tabindex="-1"
+		role="dialog">
+		<div class="modal-dialog" style="width: 95%; height: 95%;"
+			role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal"
+						aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+					<h4 class="modal-title">添加本地JVM</h4>
+				</div>
+				<div class="modal-body">
+					<p></p>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Return</button>
+				</div>
+			</div>
+			<!-- /.modal-content -->
+		</div>
+		<!-- /.modal-dialog -->
+	</div>
+	<!-- /.modal -->
+
+
+	<div id="addRemoteJvm" class="modal fade" tabindex="-1" role="dialog">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal"
+						aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+					<h4 class="modal-title">add jvm</h4>
+				</div>
+				<div class="modal-body">
+					<form class="form-inline">
+						<div class="form-group" style="margin: 10px 0;">
+							<label for="jvm_name">jvm名称:</label> <input type="text"
+								class="form-control" id="jvm_name" placeholder="给jvm设置一个名称">
+						</div>
+						<div style="margin: 10px;"></div>
+						<div class="form-group">
+							<label for="jvm_jmx_ip">IP:</label> <input type="text"
+								class="form-control" id="jvm_jmx_ip" placeholder="jvm服务器ip">
+						</div>
+						<div class="form-group">
+							<label for="jvm_jmx_port">端口:</label> <input type="text"
+								class="form-control" id="jvm_jmx_port" placeholder="jvm的jmx端口号">
+						</div>
+						<div style="margin: 10px;"></div>
+						<div class="form-group">
+							<label for="jvm_jmx_username">用户名:</label> <input type="text"
+								class="form-control" id="jvm_jmx_userName"
+								placeholder="连接jmx服务器的用户名">
+						</div>
+						<div class="form-group">
+							<label for="jvm_jmx_password">密码:</label> <input type="text"
+								class="form-control" id="jvm_jmx_password"
+								placeholder="连接jmx服务器的密码">
+						</div>
+					</form>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					<button id="addJVMBtn" type="button" class="btn btn-primary">add</button>
+				</div>
+			</div>
+			<!-- /.modal-content -->
+		</div>
+		<!-- /.modal-dialog -->
+	</div>
+	<!-- /.modal -->
+
+	<script src="../static/js/jquery-3.2.1.js"></script>
+	<!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+	<script src="../static/bootstrap/js/bootstrap.min.js"></script>
+	<script type="text/javascript">
+		$("#addLocalJVMBtn").click(function() {
+			$.get("/jvm/locallist.html", {}, function(result) {
+				var container = $("#addLocalJVMDialog .modal-body");
+				container.empty();
+				container.append(result);
+			}, "html");
+		});
+	</script>
+	<script type="text/javascript">
+		var container = $("#jvms");
+
+		function show() {
+			$.post("/jvm/getJVMList.json", {}, function(result) {
+				for ( var index in result) {
+					showJvmToList(result[index])
+				}
+			});
+		}
+
+		function showJvmToList(jvm) {
+			var tr = $("<tr>");
+			tr.append($("<td>").append(jvm.id));
+			if (jvm.name.length > 50) {
+				tr.append($("<td>", {
+					"title" : jvm.name
+				}).append(jvm.name.substring(0, 50) + "..."));
+			} else {
+				tr.append($("<td>").append(jvm.name));
+			}
+			tr.append($("<td>").append(jvm.taskNames));
+			tr.append($("<td>").append(jvm.connected ? "正常" : "断开"));
+			var operation = $("<td>");
+			operation.append($("<a>", {
+				class : "btn btn-default deleteBtn",
+				href : "#",
+				role : "button",
+				jvmId : jvm.id,
+				name : jvm.name
+			}).append("del"));
+			if (jvm.connected) {
+				operation.append($("<a>", {
+					class : "btn btn-default goToJmx",
+					href : "#",
+					role : "button",
+					jvmId : jvm.id,
+					name : jvm.name
+				}).append("mbean"));
+				
+				operation.append($("<a>", {
+					class : "btn btn-default memoryBtn",
+					href : "#",
+					role : "button",
+					jvmId : jvm.id,
+					name : jvm.name
+				}).append("memory"));
+			}
+			
+			tr.append(operation);
+			container.append(tr);
+		}
+
+		show();
+
+		$("#addJVMBtn").click(function() {
+			var jvm = {}
+			jvm.ip = $("#jvm_jmx_ip").val();
+			jvm.port = $("#jvm_jmx_port").val();
+			jvm.jmxUserName = $("#jvm_jmx_userName").val();
+			jvm.jmxPassword = $("#jvm_jmx_password").val();
+			jvm.name = $("#jvm_name").val();
+			$.post("/jvm/add.json", jvm, function(result) {
+				if (result != null) {
+					showJvmToList(result);
+					$("#addRemoteJvm").modal('hide');
+				}
+			});
+		})
+		$("#addLocalJVM").click(function() {
+			window.open("locallist.html");
+		})
+
+		$(".container").on("click", ".goToJmx", function() {
+			window.open("tree.html?id=" + $(this).attr("jvmId"));
+		});
+		
+		$(".container").on("click", ".memoryBtn", function() {
+			window.open("memoryCurInfo.html?id=" + $(this).attr("jvmId"));
+		});
+		$(".container").on("click", ".deleteBtn", function() {
+			var self = $(this)
+			$.post("/jvm/delete/" + self.attr("jvmId"), {}, function(result) {
+				if (result != null) {
+					self.parent().parent().remove();
+				}
+			});
+		});
+	</script>
+</body>
+</html>
