@@ -1,5 +1,11 @@
 package com.zqz.common;
 
+/**
+ * snowflake算法生成id值；
+ * 注意这个生成的id长度为18位，如果当成数值传递给浏览器js会自动将最后的两位置为00，如果在浏览器端js使用，需要将其以字符串的方式传递给前端；
+ * @date 2018-02-08 01:28
+ * @author zqz
+ */
 public class IdWorker{
 
     private static long workerId = 1;
