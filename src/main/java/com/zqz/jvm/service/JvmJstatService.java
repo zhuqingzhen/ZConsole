@@ -4,8 +4,6 @@ import java.lang.management.MemoryUsage;
 
 import org.springframework.stereotype.Service;
 
-import com.zqz.jvm.jmx.JVM;
-import com.zqz.jvm.jmx.JVMManager;
 import com.zqz.jvm.jmx.bean.GCInfo;
 import com.zqz.jvm.jmx.bean.JstatGCInfo;
 

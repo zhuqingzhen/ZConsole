@@ -126,6 +126,7 @@
 
 		function show() {
 			$.post("/jvm/getJVMList.json", {}, function(result) {
+				console.log(result)
 				for ( var index in result) {
 					showJvmToList(result[index])
 				}
@@ -133,6 +134,7 @@
 		}
 
 		function showJvmToList(jvm) {
+			console.log(jvm)
 			var tr = $("<tr>");
 			tr.append($("<td>").append(jvm.id));
 			if (jvm.name.length > 50) {

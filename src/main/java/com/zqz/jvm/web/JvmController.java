@@ -19,7 +19,6 @@ import com.zqz.jvm.jmx.JVM;
 import com.zqz.jvm.jmx.JVMManager;
 import com.zqz.jvm.jmx.bean.LocalVMInfo;
 import com.zqz.jvm.jmx.notification.NotificationManager;
-//import com.zqz.jvm.mapper.JVMMapper;
 import com.zqz.jvm.bean.JVMEntity;
 import com.zqz.jvm.service.JVMService;
 import com.zqz.jvm.task.ZQZTaskManager;
@@ -31,9 +30,6 @@ public class JvmController {
 	
 	private static Logger logger = LoggerFactory.getLogger(JvmController.class);
 	
-//	@Autowired
-//	private JVMMapper jvmMapper;
-	
 	@Autowired
 	private JVMService jvmService;
 	
@@ -42,20 +38,8 @@ public class JvmController {
 		return jvmService.getJVMList();
 	}
 	
-//    @RequestMapping("/getJVM")
-//    public JVMEntity getJVM(Long id) {
-//    	JVMEntity jvm = jvmMapper.getOne(id);
-//        return jvm;
-//    }
-//    
-//    @RequestMapping(value="/update")
-//    public void update(JVMEntity jvm) {
-//    	jvmMapper.update(jvm);
-//    }
-    
     @RequestMapping(value="/delete/{jvmId}")
     public void delete(@PathVariable("jvmId") Long jvmId) {
-//    	jvmMapper.delete(jvmId);
     	ZQZTaskManager.clearJob(jvmId);
     	NotificationManager.clearNotification(jvmId);
     	JVMManager.remove(jvmId);
@@ -64,8 +48,8 @@ public class JvmController {
     
     @RequestMapping(value="/add")
     public JVMList add(JVMEntity jvmEntity) {
-//    	long id=jvmMapper.insert(jvmEntity);
     	long id=IdWorker.nextId();
+    	System.out.println(id);
     	if(id > 0 ){
     		jvmEntity.setId(id);
     	}else{

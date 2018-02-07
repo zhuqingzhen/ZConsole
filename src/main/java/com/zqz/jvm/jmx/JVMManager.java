@@ -26,6 +26,8 @@ public class JVMManager {
 	 * 根据jvmId获取JVM
 	 * @param jvmId
 	 * @return
+	 * 961285586646339600
+	 * 961285586646339584
 	 */
 	public static JVM get(long jvmId){
 		return JVMS.get(jvmId);

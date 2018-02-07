@@ -3,7 +3,7 @@ package com.zqz.jvm.service;
 import javax.management.MBeanInfo;
 import javax.management.ObjectName;
 
-import org.springframework.beans.factory.annotation.Autowired;
+//import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
@@ -16,8 +16,8 @@ import com.zqz.jvm.jmx.notification.NotificationManager;
 @Service
 public class JvmJmxService {
 	
-	@Autowired
-    private SimpMessagingTemplate template;
+//	@Autowired
+//    private SimpMessagingTemplate template;
 	
 	/**
 	 * 订阅通知
