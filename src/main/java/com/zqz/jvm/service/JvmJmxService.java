@@ -11,6 +11,8 @@ import com.zqz.jvm.bean.Node;
 import com.zqz.jvm.jmx.JVM;
 import com.zqz.jvm.jmx.JVMManager;
 import com.zqz.jvm.jmx.MBeanUtil;
+import com.zqz.jvm.jmx.bean.OperatingSystemInfo;
+import com.zqz.jvm.jmx.bean.RuntimeInfo;
 import com.zqz.jvm.jmx.notification.NotificationManager;
 
 @Service
@@ -121,5 +123,32 @@ public class JvmJmxService {
 			return null;
 		}
 		return MBeanUtil.execute(objectName, methodName, params, signature, jvm);
+	}
+	
+	/**
+	 * 获取JVM
+	 * @param jvmId
+	 * @return
+	 * @throws Exception
+	 */
+	public RuntimeInfo getRuntime(long jvmId) throws Exception{
+		JVM jvm = JVMManager.get(jvmId);
+		if (jvm == null) {
+			return null;
+		}
+		return jvm.getRuntime();
+	}
+	
+	/**
+	 * 获取OperatingSystem
+	 * @return
+	 * @throws Exception
+	 */
+	public OperatingSystemInfo getOperatingSystemInfo(long jvmId) throws Exception{
+		JVM jvm = JVMManager.get(jvmId);
+		if (jvm == null) {
+			return null;
+		}
+		return jvm.getOperatingSystemInfo();
 	}
 }

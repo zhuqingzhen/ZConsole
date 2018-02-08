@@ -76,7 +76,7 @@ public class JMXClient {
 		JMXClient client = new JMXClient(1);
 		client.connect(host, port);
 		JVM jvm = new JVM(1, client);
-		jvm.getMemoryInfo();
+		jvm.getRuntime();
 	}
 
 	/** START -- 连接本地jvm ***********************************************/

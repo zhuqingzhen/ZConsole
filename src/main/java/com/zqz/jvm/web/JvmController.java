@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.sun.tools.attach.AgentInitializationException;
 import com.sun.tools.attach.AgentLoadException;
-import com.zqz.common.IdWorker;
 import com.zqz.jvm.bean.JVMList;
 import com.zqz.jvm.jmx.JMXClient;
 import com.zqz.jvm.jmx.JVMManager;
@@ -59,4 +58,6 @@ public class JvmController {
     public boolean addLocalVM(long jvmId) throws IOException, AgentLoadException, AgentInitializationException{
     	return jvmService.addLocalVM(jvmId);
     }
+    
+  
 }

@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.zqz.jvm.bean.Node;
 import com.zqz.jvm.jmx.JMXTypeUtil;
+import com.zqz.jvm.jmx.bean.OperatingSystemInfo;
+import com.zqz.jvm.jmx.bean.RuntimeInfo;
 import com.zqz.jvm.jmx.notification.NotificationManager;
 import com.zqz.jvm.service.JvmJmxService;
 
@@ -209,4 +211,14 @@ public class JvmJmxController {
 		return result;
 	}
 	
+	
+	@RequestMapping(value="/runtime")
+	public RuntimeInfo getRuntime(long jvmId) throws Exception{
+	    	return jvmJmxService.getRuntime(jvmId);
+	}
+	
+	@RequestMapping(value="/operatingSystem")
+	public OperatingSystemInfo getOperatingSystemInfo(long jvmId) throws Exception{
+	    	return jvmJmxService.getOperatingSystemInfo(jvmId);
+	}
 }

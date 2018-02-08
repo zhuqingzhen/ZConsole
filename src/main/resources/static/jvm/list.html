@@ -170,6 +170,14 @@
 					jvmId : jvm.id,
 					name : jvm.name
 				}).append("memory"));
+				
+				operation.append($("<a>", {
+					class : "btn btn-default infoBtn",
+					href : "#",
+					role : "button",
+					jvmId : jvm.id,
+					name : jvm.name
+				}).append("info"));
 			}
 			
 			tr.append(operation);
@@ -203,6 +211,11 @@
 		$(".container").on("click", ".memoryBtn", function() {
 			window.open("memoryCurInfo.html?id=" + $(this).attr("jvmId"));
 		});
+		
+		$(".container").on("click", ".infoBtn", function() {
+			window.open("jvmInfo.html?id=" + $(this).attr("jvmId"));
+		});
+		
 		$(".container").on("click", ".deleteBtn", function() {
 			var self = $(this)
 			$.post("/jvm/delete/" + self.attr("jvmId"), {}, function(result) {

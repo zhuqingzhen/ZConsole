@@ -77,6 +77,8 @@ public class JVMService {
 			} catch (Exception e) {
 				logger.error("", e);
 			};
+		}else{
+			System.out.println("建连成功");
 		}
 		JVMList jvmList = new JVMList();
     	jvmList.setName(jvmEntity.getName());
@@ -102,4 +104,5 @@ public class JVMService {
 		}
 		return list;
 	}
+	
 }
