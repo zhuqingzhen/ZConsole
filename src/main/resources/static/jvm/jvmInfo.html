@@ -7,6 +7,10 @@
 <!--  <meta http-equiv="refresh" content="60" /> -->
 <!-- 最新版本的 Bootstrap 核心 CSS 文件 -->
 <link rel="stylesheet" href="../static/bootstrap/css/bootstrap.min.css" />
+<style type="text/css">
+table{table-layout: fixed;}
+td{word-break: break-all; word-wrap:break-word;}
+</style>
 </head>
 <body>
 	<div class="container">
@@ -21,12 +25,12 @@
   			<div class="tab-content">
     			<div role="tabpanel" class="tab-pane active" id="home">
     				<table id="runtime" class="table table-striped  table-hover">
-						<tr><td>名称</td><td>值</td></tr>
+						<tr><td style="width:100px;">名称</td><td>值</td></tr>
 					</table>
     			</div>
     			<div role="tabpanel" class="tab-pane" id="profile">
     				<table id="operatingSystem" class="table table-striped  table-hover">
-						<tr><td>名称</td><td>值</td></tr>
+						<tr><td style="width:100px;">名称</td><td>值</td></tr>
 					</table>
     			</div>
   			</div>
@@ -135,7 +139,6 @@ function showRuntime(){
 					return container;
 					})()
 				)));
-
 	});
 }
 
