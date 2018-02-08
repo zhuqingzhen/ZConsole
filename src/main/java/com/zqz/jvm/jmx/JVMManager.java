@@ -60,7 +60,7 @@ public class JVMManager {
 			for(Map.Entry<Long, JVM> entry : JVMS.entrySet()){
 				tmp = entry.getValue();
 				JVMList jvm = new JVMList();
-				jvm.setId(tmp.getId());
+				jvm.setId(String.valueOf(tmp.getId()));
 				jvm.setName(tmp.getName());
 				jvm.setConnected(tmp.getClient().isConnected());
 				list[i++] = jvm;

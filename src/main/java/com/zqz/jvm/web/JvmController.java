@@ -67,9 +67,9 @@ public class JvmController {
 		}
 		JVMList jvmList = new JVMList();
     	jvmList.setName(jvmEntity.getName());
-    	jvmList.setId(jvmEntity.getId());
+    	jvmList.setId(String.valueOf(jvmEntity.getId()));
 		jvmList.setConnected(jvm.getClient().isConnected());
-		jvmList.setTaskNames(ZQZTaskManager.getJobNames(jvmList.getId()));
+		jvmList.setTaskNames(ZQZTaskManager.getJobNames(id));
 		return jvmList;
     }
     

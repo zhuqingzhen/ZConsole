@@ -20,7 +20,7 @@ public class JVMService {
 			JVMList tmp ;
 			for(int i = 0 ; i < list.length ; i++){
 				tmp = list[i];
-				tmp.setTaskNames(ZQZTaskManager.getJobNames(tmp.getId()));
+				tmp.setTaskNames(ZQZTaskManager.getJobNames(Long.valueOf(tmp.getId())));
 			}
 		}
 		return list;
