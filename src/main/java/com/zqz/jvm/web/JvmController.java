@@ -15,14 +15,12 @@ import com.sun.tools.attach.AgentLoadException;
 import com.zqz.common.IdWorker;
 import com.zqz.jvm.bean.JVMList;
 import com.zqz.jvm.jmx.JMXClient;
-import com.zqz.jvm.jmx.JVM;
 import com.zqz.jvm.jmx.JVMManager;
 import com.zqz.jvm.jmx.bean.LocalVMInfo;
 import com.zqz.jvm.jmx.notification.NotificationManager;
 import com.zqz.jvm.bean.JVMEntity;
 import com.zqz.jvm.service.JVMService;
 import com.zqz.jvm.task.ZQZTaskManager;
-import com.zqz.jvm.task.job.ConnectTask;
 
 @RestController
 @RequestMapping(value = "/jvm")
@@ -47,30 +45,8 @@ public class JvmController {
     
     
     @RequestMapping(value="/add")
-    public JVMList add(JVMEntity jvmEntity) {
-    	long id=IdWorker.nextId();
-    	System.out.println(id);
-    	if(id > 0 ){
-    		jvmEntity.setId(id);
-    	}else{
-    		return null;
-    	}
-    	JMXClient  client = new JMXClient(jvmEntity.getId());
-		JVM jvm = new JVM(jvmEntity.getId(),client);
-		jvm.setName(jvmEntity.getName());
-		if(!client.connect(jvmEntity.getIp(), String.valueOf(jvmEntity.getPort()))){
-			try {
-				new ConnectTask(jvm);
-			} catch (Exception e) {
-				logger.error("", e);
-			};
-		}
-		JVMList jvmList = new JVMList();
-    	jvmList.setName(jvmEntity.getName());
-    	jvmList.setId(String.valueOf(jvmEntity.getId()));
-		jvmList.setConnected(jvm.getClient().isConnected());
-		jvmList.setTaskNames(ZQZTaskManager.getJobNames(id));
-		return jvmList;
+    public JVMList addRemoteJVM(JVMEntity jvmEntity) {
+		return jvmService.addRemoteJVM(jvmEntity);
     }
     
     
@@ -81,21 +57,6 @@ public class JvmController {
     
     @RequestMapping(value="/localvm/add")
     public boolean addLocalVM(long jvmId) throws IOException, AgentLoadException, AgentInitializationException{
-    	JMXClient client = new JMXClient(jvmId);
-    	List<LocalVMInfo> list = JMXClient.listLocalVM();
-    	LocalVMInfo localvm = null;
-    	for(LocalVMInfo vm :list){
-    		if(vm.getId().equals(String.valueOf(jvmId))){
-    			localvm = vm;
-    			break;
-    		}
-    	}
-    	if(localvm!=null){
-    		JVM jvm = new JVM(jvmId, client);
-    		client.getLocalVmMBeanServer(localvm);
-    		jvm.setName(localvm.getName());
-    		return true;
-    	}
-    	return false;
+    	return jvmService.addLocalVM(jvmId);
     }
 }
