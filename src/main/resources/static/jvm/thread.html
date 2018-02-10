@@ -63,7 +63,6 @@
     			线程id
   				</label>
 			</div>
-			<a class="btn btn-default" href="#" role="button" id="refreshThreadList">刷新</a>
 		</div>
   		<div class="col-md-3" id ="left">
   		</div>
@@ -222,12 +221,12 @@ function showThreadInfo(data){
 
 $(".threadListSort").click(function(){
 	sortField = $("input[name='threadListSort']:checked").val();
-	if(dumpdata!=null)
-	dumpdata.sort(threadNamePolice)
+	if(dumpdata!=null){
+		dumpdata.sort(threadNamePolice)
+		showThreadList();
+	}
 });
-$("#refreshThreadList").click(function(){
-	showThreadList();
-});
+
 	
 /**
  *排序
