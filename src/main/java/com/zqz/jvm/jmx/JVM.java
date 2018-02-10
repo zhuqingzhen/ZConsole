@@ -510,8 +510,7 @@ public class JVM {
 					MBeanUtil.getObjectNameValue(objectName, "Version", this)
 				)
 			);
-		String os = System.getProperty("os.name");  
-		if(!os.toLowerCase().startsWith("win")){  
+		if(!obj.getName().toLowerCase().startsWith("win")){  
 			obj.setMaxFileDescriptorCount(
 				Long.parseLong(
 					String.valueOf( 
