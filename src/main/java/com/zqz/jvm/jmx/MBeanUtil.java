@@ -9,7 +9,6 @@ import java.util.Set;
 
 import javax.management.InstanceNotFoundException;
 import javax.management.IntrospectionException;
-import javax.management.MBeanException;
 import javax.management.MBeanInfo;
 import javax.management.MalformedObjectNameException;
 import javax.management.NotificationListener;
@@ -368,44 +367,6 @@ public class MBeanUtil {
 		}
 	}
 
-	
-
-	/**
-	 * vm thread
-	 * 去遍历所有线程的信息，由于是单线程处理，如果线程数量多的话是会影响到性能的，因为在扫描堆栈过程中，是在softpoint的状态。
-	 * 
-	 * 在函数 dumpAllThreads(boolean lockedMonitors, boolean
-	 * lockedSynchronizers)里有2个参数 lockedMonitor, 和 lockedSynchronizer
-	 * 而这两个参数分别控制两种锁ThreadInfo .getLockedMonitors() 和
-	 * ThreadInfo.getLockedSynchronizers() a. Monitor 锁
-	 * 就是我们传统使用的synchronized(Object obj), 可以通过MonitorInfo[]得到具体的锁的数量和信息 b.
-	 * Locked ownable synchronizers 锁 常指的ReentrantLock 和 ReentrantReadWriteLock
-	 * 锁 通过得到LockInfo[] 可以得到具体的类，锁的数量和信息
-	 * 
-	 * @throws IOException
-	 * @throws NullPointerException
-	 * @throws ReflectionException
-	 * @throws MBeanException
-	 * @throws MalformedObjectNameException
-	 * @throws InstanceNotFoundException
-	 */
-	public CompositeData[] dumpThread(JVM jvm, boolean lockedMonitors, boolean lockedSynchronizers)throws Exception {
-		Object obj = null;
-		try {
-			obj = jvm.getClient().getMbsc().invoke(
-					ObjectName.getInstance("java.lang:type=Threading")
-					, "dumpAllThreads"
-					, new Object[] { lockedMonitors, lockedSynchronizers }
-					, new String[] { "boolean", "boolean" });
-		} catch (java.rmi.ConnectException e) {
-			jvm.getClient().changeConnectStatus(false);
-			throw e;
-		}
-		if (obj != null) {
-			return (CompositeData[]) obj;
-		}
-		return null;
-	}
 
 	/**
 	 * 查询一个mb是否被注册

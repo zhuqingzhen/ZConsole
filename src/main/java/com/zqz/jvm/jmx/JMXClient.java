@@ -19,6 +19,7 @@ import org.quartz.SchedulerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.alibaba.fastjson.JSON;
 import com.sun.tools.attach.AgentInitializationException;
 import com.sun.tools.attach.AgentLoadException;
 import com.sun.tools.attach.AttachNotSupportedException;
@@ -67,16 +68,34 @@ public class JMXClient {
 	
 
 	public static void main(String[] args) throws Exception {
-		System.out.println(getAgentFile());
-		System.out.println(JMXClient.listLocalVM().size());
-		String port = "8999";
-		String host = "192.168.2.174";
-		// port = "9999";
-		// host = "localhost";
-		JMXClient client = new JMXClient(1);
-		client.connect(host, port);
-		JVM jvm = new JVM(1, client);
-		jvm.getRuntime();
+		List<LocalVMInfo> vms = JMXClient.listLocalVM();
+		LocalVMInfo target=null;
+		for(int i =0 ;i<vms.size() ;i++){
+			if(vms.get(i).getName().equals("com.zqz.oom.ThreadWaitMonitor")){
+				target = vms.get(i);
+				break;
+			}
+		}
+		JMXClient localClient = new JMXClient(1);
+		localClient.getLocalVmMBeanServer(target);
+		JVM jvm = new JVM(1,localClient);
+		Object[] obj = (Object[])MBeanUtil.execute("java.lang:type=Threading","dumpAllThreads", new Object[]{true,true}, new String[]{"boolean","boolean"}, jvm);
+		System.out.println(JSON.toJSONString(obj));
+		List<Map<String,Object>> result = new ArrayList<Map<String,Object>>();
+		for(int i =0 ; i< obj.length ;i++){
+			HashMap<String,Object> item = (HashMap<String,Object>)obj[i];
+			System.out.println(JSON.toJSONString(item)+",");
+		}
+//		String port = "8999";
+//		String host = "192.168.2.174";
+//		JMXClient client = new JMXClient(1);
+//		client.connect(host, port);
+//		JVM jvm = new JVM(1, client);
+//		Object[] obj = (Object[])MBeanUtil.execute("java.lang:type=Threading","dumpAllThreads", new Object[]{true,true}, new String[]{"boolean","boolean"}, jvm);
+//		for(int i =0 ; i< obj.length ;i++){
+//			HashMap item = (HashMap)obj[i];
+////			System.out.println(JSON.toJSONString(item));
+//		}
 	}
 
 	/** START -- 连接本地jvm ***********************************************/

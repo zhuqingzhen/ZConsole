@@ -178,6 +178,14 @@
 					jvmId : jvm.id,
 					name : jvm.name
 				}).append("info"));
+				
+				operation.append($("<a>", {
+					class : "btn btn-default threadBtn",
+					href : "#",
+					role : "button",
+					jvmId : jvm.id,
+					name : jvm.name
+				}).append("thread"));
 			}
 			
 			tr.append(operation);
@@ -214,6 +222,10 @@
 		
 		$(".container").on("click", ".infoBtn", function() {
 			window.open("jvmInfo.html?id=" + $(this).attr("jvmId"));
+		});
+		
+		$(".container").on("click", ".threadBtn", function() {
+			window.open("thread.html?id=" + $(this).attr("jvmId"));
 		});
 		
 		$(".container").on("click", ".deleteBtn", function() {

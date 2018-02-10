@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../static/bootstrap/css/bootstrap.min.css" />
+<style type="text/css">
+	#left{
+		height:100%;
+		overflow-y:scroll;
+		max-height:700px;
+	}
+	#left .threadName{
+		margin:8px;
+		margin-bottom:16px;
+		cursor:pointer;
+		word-break: break-all; 
+		word-wrap:break-word;
+	}
+	#left .threadName .threadName_tid{
+		width:30px;
+		display:inline-block;
+	}
+	#left .current{
+		background-color:#00f;
+		color:#fff;
+	}
+	#right .stackTrace .stackTitle{
+		font-size:16px;line-height:35px;
+	}
+	#right .stackTrace .stackState{
+		margin-left:16px;line-height:30px;
+	}
+	#right .stackTrace .stack{
+		margin-left:24px;line-height:25px;
+	}
+	#right .stackTrace .locked{
+		color:#f00;
+	}
+</style>
+</head>
+<body>
+<div class="container">
+	<div class="row">
+		<div class="col-md-12">
+			<a class="btn btn-default" href="#" role="button" id="dumpThread">dumpThread</a>
+			<p  style="margin:8px;color:#f00;font-size:16px;">注意：此按钮不可以被任意点击，只能执行一次；<br>堆栈扫描在softpoint状态,会导致jvm处于stop the word，而且dump线程栈是单线程处理，停顿时间与jvm内部线程数量是正比关系，在线程很多的情况下会导致长时间的停顿；<br>如果是线上环境，对延迟要求很高，使用前请先评估操作对业务带来的影响；</p>
+		</div>
+	</div>
+	<div class="row">
+  		<div class="col-md-3" id ="left">
+  		</div>
+  		<div class="col-md-9" id="right">
+  		</div>
+	</div>
+</div>
+<script src="../static/js/jquery-3.2.1.js"></script>
+<script src="../static/js/util.js" type="text/javascript"></script>
+<script src="../static/bootstrap/js/bootstrap.min.js"></script>
+<script type="text/javascript">
+var systemThread={"Attach Listener":"","Finalizer":"","Reference Handler":"","Signal Dispatcher":""}
+var jvmId = gerUrlParam("id");
+var left =$("#left");
+var right=$("#right");
+
+var isClick=false;
+var sortField="threadName";//线程排序字段，默认按线程名称排序
+var cache={};
+$("#dumpThread").click(function(){
+	if(isClick){
+		alert("不可以反复执行该操作");
+		return ;
+	}
+	isClick=true;
+	$(this).attr("disabled","disabled");
+	$.post("/jmx/dumpThread.json?lockedMonitors=true&lockedSynchronizers=true&jvmId="+jvmId, {}, function(result) {
+		result.sort(threadNamePolice)
+		console.log(result);
+		for(var i =0;i<result.length;i++){
+			cache[result[i].threadName]=result[i];
+			left.append(
+					$("<div>",{"class":"threadName","threadName":result[i].threadName})
+					.append($("<span>",{"class":"threadName_tid"}).append(result[i].threadId)).append(result[i].threadName)
+					);
+		}
+	});
+});
+
+$("#left").on("click", ".threadName", function() {
+	$("#left .current").removeClass("current");
+	$(this).addClass("current");
+	right.empty();
+	showThreadInfo(cache[$(this).attr("threadName")]);
+});
+
+function showThreadInfo(data){
+	var stackTrace = $("<div>",{"class":"stackTrace"});
+	var titleDiv = $("<div>",{"class":"stackTitle"}).append("线程名:\""+data.threadName+"\" 线程Id:"+data.threadId +" ");
+	var stateDiv= $("<div>",{"class":"stackState"});
+	var stateDescDiv=$("<div>",{"class":"stateDesc"});
+	var state ="";
+	
+	if(data.stackTrace.length>0){
+		var firstStack = data.stackTrace[0]
+		if(data.threadState == "RUNNABLE"){
+			titleDiv.append("状态：runnable");
+			state ="runnable";
+			stateDiv.append("java.lang.Thread.State: RUNNABLE");
+			stateDescDiv.append("当前线程处于可运行状态");
+			if(firstStack.nativeMethod){
+				stateDescDiv.append("；要注意线程正在执行本地方法，有可能会被本地方法阻塞");	
+			}
+		}else if(data.threadState == "BLOCKED"){
+			titleDiv.append("状态：waiting for monitor entry");
+			state ="entrySet";
+			stateDiv.append("java.lang.Thread.State: BLOCKED (on object monitor)");
+			stateDescDiv.append("当前线程等待进入synchronized代码块");
+		}else if(firstStack.methodName=="wait" && firstStack.nativeMethod && firstStack.className == "java.lang.Object" ){
+			titleDiv.append("状态：in Object.wait()");
+			state ="waitSet";
+			stateDiv.append("java.lang.Thread.State: "+data.threadState+" (on object monitor)");
+			stateDescDiv.append("当前线程进入synchronized代码块后，调用了Object.wait()方法，释放锁并被阻塞，等待被唤醒");
+		}else if(firstStack.methodName=="park" && firstStack.nativeMethod && firstStack.className == "sun.misc.Unsafe"){
+			titleDiv.append("状态：waiting on condition");
+			state ="park";
+			stateDiv.append("java.lang.Thread.State: "+data.threadState+" (parking)");
+			stateDescDiv.append("当前线程调用了"+(data.lockInfo!=null?"LockSupport.park(Object)":"LockSupport.park()")+"方法被阻塞");
+		}else if(data.threadState == "TIMED_WAITING" && firstStack.methodName=="sleep" && firstStack.nativeMethod && firstStack.className == "java.lang.Thread" ){
+			titleDiv.append("状态：waiting on condition");
+			state ="sleep";
+			stateDiv.append("java.lang.Thread.State: TIMED_WAITING (sleeping) ");
+			stateDescDiv.append("当前线程调用了Thread.sleep()方法正在休眠");
+		}
+	}else{
+		state ="runnable";
+		stateDiv.append("java.lang.Thread.State: RUNNABLE");
+	}
+	stackTrace.append(stateDescDiv);
+	stackTrace.append(titleDiv);
+	stackTrace.append(stateDiv);
+	var stacks =data.stackTrace;
+	var lockedMonitors = data.lockedMonitors;
+	if(stacks.length>0){
+		for(var i = 0 , j = stacks.length ; i < j ; i++){
+			var stack = stacks[i];
+			stackTrace.append($("<div>",{"class":"stack"}).append("at  "+stack.className +"."+stack.methodName+"(").append((stack.nativeMethod?"Native Method":stack.fileName+":"+stack.lineNumber)+")"));
+			if(i == 0 ){
+				if(state == "entrySet"){
+					stackTrace.append($("<div>",{"class":"stack locked"}).append("- waiting to lock <"+data.lockInfo.identityHashCode+">  (a "+data.lockInfo.className+") 持有锁线程:"+data.lockOwnerId));
+				}else if(state=="waitSet"){	
+					stackTrace.append($("<div>",{"class":"stack locked"}).append("- waiting on  <"+data.lockInfo.identityHashCode+">  (a "+data.lockInfo.className+") 持有锁线程:"+data.lockOwnerId));
+				}else if(state == "park" && data.lockInfo!=null){
+					stackTrace.append($("<div>",{"class":"stack locked"}).append("- parking to wait for  <"+data.lockInfo.identityHashCode+">  (a "+data.lockInfo.className+")"));
+				}
+			}
+			if(lockedMonitors.length>0){
+				for(var m = 0 ,n=lockedMonitors.length;m<n;m++){
+					var lockedMonitor = lockedMonitors[m];
+					/**
+					if(lockedMonitor.lockedStackFrame.className==stack.className &&
+					   lockedMonitor.lockedStackFrame.methodName==stack.methodName &&
+					   lockedMonitor.lockedStackFrame.lineNumber == stack.lineNumber){
+						**/
+					if(lockedMonitor.lockedStackDepth==i){
+						stackTrace.append($("<div>",{"class":"stack locked"}).append("- locked  <"+lockedMonitor.identityHashCode+">  (a "+lockedMonitor.className+")"));
+					}
+				}
+			}
+		}
+		if(state=="waitSet"){
+			stackTrace.append($("<div>",{ "class":"emptyLine"}).append(" 已释放的锁(无法获取加锁行号)："));
+			stackTrace.append($("<div>",{"class":"stack locked"}).append("- locked  <"+data.lockInfo.identityHashCode+">  (a "+data.lockInfo.className+") 持有锁线程:"+data.lockOwnerId));
+		}
+		if(data.lockedSynchronizers.length>0){
+			for(var i = 0,j = data.lockedSynchronizers.length;i<j;i++){
+				stackTrace.append($("<div>",{ "class":"lockedSynchronizers"}).append("Locked ownable synchronizers:"));
+				stackTrace.append($("<div>",{ "class":"lockedSynchronizers"}).append("- <"+data.lockedSynchronizers[i].identityHashCode+">  (a "+data.lockedSynchronizers[i].className+")" ));
+			}
+		}
+	}
+	right.append(stackTrace);
+}
+
+/**
+ *排序
+ */
+function threadNamePolice(a,b){
+	if(a.threadName < b.threadName){
+		return -1;
+	}else if(a.threadName == b.threadName){
+		return 0;
+	}else{
+		return 1;
+	}
+}
+</script>
+</body>
+</html>

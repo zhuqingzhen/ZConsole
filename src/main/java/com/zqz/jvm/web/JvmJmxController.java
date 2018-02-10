@@ -1,6 +1,8 @@
 package com.zqz.jvm.web;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.management.MBeanInfo;
@@ -131,15 +133,20 @@ public class JvmJmxController {
 	
 	/**
 	 * 导出线程栈
-	 * 去遍历所有线程的信息，由于是单线程处理，如果线程数量多的话是会影响到性能的，因为在扫描堆栈过程中，是在softpoint的状态。
+	 * 在扫描堆栈过程中，是在softpoint的状态,去遍历所有线程的信息,会导致jvm处于stop the word状态，而且dump线程栈是单线程处理，停顿时间与jvm内部线程数量是正比关系，在线程很多的情况下会导致长时间的停顿。
 	 * 
-	 * 在函数 dumpAllThreads(boolean lockedMonitors, boolean
-	 * lockedSynchronizers)里有2个参数 lockedMonitor, 和 lockedSynchronizer
-	 * 而这两个参数分别控制两种锁ThreadInfo .getLockedMonitors() 和
-	 * ThreadInfo.getLockedSynchronizers() a. Monitor 锁
-	 * 就是我们传统使用的synchronized(Object obj), 可以通过MonitorInfo[]得到具体的锁的数量和信息 b.
-	 * Locked ownable synchronizers 锁 常指的ReentrantLock 和 ReentrantReadWriteLock
-	 * 锁 通过得到LockInfo[] 可以得到具体的类，锁的数量和信息
+	 * 在函数 dumpAllThreads(boolean lockedMonitors, boolean lockedSynchronizers)里有2个参数 lockedMonitor和 lockedSynchronizer
+	 * 这两个参数分别控制两种锁ThreadInfo .getLockedMonitors() 和ThreadInfo.getLockedSynchronizers() 
+	 * a. Monitor 锁就是我们传统使用的synchronized(Object obj), 可以通过MonitorInfo[]得到具体的锁的数量和信息 
+	 * b. Locked ownable synchronizers 锁 常指的ReentrantLock 和 ReentrantReadWriteLock锁, 通过得到LockInfo[] 可以得到具体的类，锁的数量和信息,这种锁在jstack -l 里面会在线程栈最后 “Locked ownable synchronizers:”列出，例如：
+"RTlock has Lock1" #13 prio=5 os_prio=0 tid=0x0000000018c05000 nid=0x156fc waiting on condition [0x0000000019d4e000]
+   java.lang.Thread.State: TIMED_WAITING (sleeping)
+	at java.lang.Thread.sleep(Native Method)
+	at com.zqz.oom.ThreadWaitMonitor$RTlockLocked.run(ThreadWaitMonitor.java:41)
+
+   Locked ownable synchronizers:
+	- <0x00000000d6250058> (a java.util.concurrent.locks.ReentrantLock$NonfairSync)
+	 * 
 	 * 
 	 * 
 	 *	阻塞总数
@@ -162,7 +169,9 @@ public class JvmJmxController {
 	@ResponseBody
 	@RequestMapping("/dumpThread")
 	public Object dumpThread(long jvmId,boolean lockedMonitors, boolean lockedSynchronizers) throws Exception{
-		return JMXTypeUtil.getResult(jvmJmxService.execute(jvmId, "java.lang:type=Threading", "dumpAllThreads", new Object[]{lockedMonitors,lockedSynchronizers}, new String[]{"boolean","boolean"}));
+		
+		
+		return jvmJmxService.execute(jvmId, "java.lang:type=Threading", "dumpAllThreads", new Object[]{lockedMonitors,lockedSynchronizers}, new String[]{"boolean","boolean"});
 	}
 	
 	/**
@@ -221,4 +230,5 @@ public class JvmJmxController {
 	public OperatingSystemInfo getOperatingSystemInfo(long jvmId) throws Exception{
 	    	return jvmJmxService.getOperatingSystemInfo(jvmId);
 	}
+	
 }

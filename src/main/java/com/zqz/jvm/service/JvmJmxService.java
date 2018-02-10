@@ -3,7 +3,6 @@ package com.zqz.jvm.service;
 import javax.management.MBeanInfo;
 import javax.management.ObjectName;
 
-//import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
@@ -17,9 +16,6 @@ import com.zqz.jvm.jmx.notification.NotificationManager;
 
 @Service
 public class JvmJmxService {
-	
-//	@Autowired
-//    private SimpMessagingTemplate template;
 	
 	/**
 	 * 订阅通知
@@ -125,6 +121,10 @@ public class JvmJmxService {
 		return MBeanUtil.execute(objectName, methodName, params, signature, jvm);
 	}
 	
+	public String dumpThread(){
+		return null;
+	}
+	
 	/**
 	 * 获取JVM
 	 * @param jvmId
@@ -151,4 +151,5 @@ public class JvmJmxService {
 		}
 		return jvm.getOperatingSystemInfo();
 	}
+	
 }
