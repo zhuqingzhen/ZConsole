@@ -49,6 +49,22 @@
 		</div>
 	</div>
 	<div class="row">
+		<div class="col-md-12">
+			排序：
+			<div class="radio-inline">
+  				<label>
+    			<input type="radio" name="threadListSort" class="threadListSort" value="threadName" checked>
+    			线程名
+  				</label>
+			</div>
+			<div class="radio-inline">
+  				<label>
+    			<input type="radio" name="threadListSort" class="threadListSort" value="threadId">
+    			线程id
+  				</label>
+			</div>
+			<a class="btn btn-default" href="#" role="button" id="refreshThreadList">刷新</a>
+		</div>
   		<div class="col-md-3" id ="left">
   		</div>
   		<div class="col-md-9" id="right">
@@ -65,8 +81,10 @@ var left =$("#left");
 var right=$("#right");
 
 var isClick=false;
-var sortField="threadName";//线程排序字段，默认按线程名称排序
+var sortField="threadId";//线程排序字段，默认按线程名称threadName排序,还可以按 threadId
+var dumpdata;
 var cache={};
+
 $("#dumpThread").click(function(){
 	if(isClick){
 		alert("不可以反复执行该操作");
@@ -76,7 +94,7 @@ $("#dumpThread").click(function(){
 	$(this).attr("disabled","disabled");
 	$.post("/jmx/dumpThread.json?lockedMonitors=true&lockedSynchronizers=true&jvmId="+jvmId, {}, function(result) {
 		result.sort(threadNamePolice)
-		console.log(result);
+		dumpdata = result;
 		for(var i =0;i<result.length;i++){
 			cache[result[i].threadName]=result[i];
 			left.append(
@@ -84,8 +102,28 @@ $("#dumpThread").click(function(){
 					.append($("<span>",{"class":"threadName_tid"}).append(result[i].threadId)).append(result[i].threadName)
 					);
 		}
+		showThreadList();
 	});
 });
+
+/**
+ * 重新显示数据 
+ **/
+function showThreadList(){
+	right.empty();
+	left.empty();
+	if(dumpdata==null){
+		alert("请先dump线程栈！");
+		return;
+	}
+	for(var i =0;i<dumpdata.length;i++){
+		left.append(
+				$("<div>",{"class":"threadName","threadName":dumpdata[i].threadName})
+				.append($("<span>",{"class":"threadName_tid"}).append(dumpdata[i].threadId)).append(dumpdata[i].threadName)
+				);
+	}
+}
+
 
 $("#left").on("click", ".threadName", function() {
 	$("#left .current").removeClass("current");
@@ -182,13 +220,22 @@ function showThreadInfo(data){
 	right.append(stackTrace);
 }
 
+$(".threadListSort").click(function(){
+	sortField = $("input[name='threadListSort']:checked").val();
+	if(dumpdata!=null)
+	dumpdata.sort(threadNamePolice)
+});
+$("#refreshThreadList").click(function(){
+	showThreadList();
+});
+	
 /**
  *排序
  */
 function threadNamePolice(a,b){
-	if(a.threadName < b.threadName){
+	if(a[sortField] < b[sortField]){
 		return -1;
-	}else if(a.threadName == b.threadName){
+	}else if(a[sortField] == b[sortField]){
 		return 0;
 	}else{
 		return 1;
