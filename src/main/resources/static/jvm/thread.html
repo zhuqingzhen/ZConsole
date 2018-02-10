@@ -11,6 +11,11 @@
 		overflow-y:scroll;
 		max-height:700px;
 	}
+	#left .threadName:hover{ 
+		background-color:#aaa;
+		color:#000;
+	}
+	
 	#left .threadName{
 		margin:8px;
 		margin-bottom:16px;
@@ -95,9 +100,9 @@ $("#dumpThread").click(function(){
 		result.sort(threadNamePolice)
 		dumpdata = result;
 		for(var i =0;i<result.length;i++){
-			cache[result[i].threadName]=result[i];
+			cache[result[i].threadId]=result[i];
 			left.append(
-					$("<div>",{"class":"threadName","threadName":result[i].threadName})
+					$("<div>",{"class":"threadName","threadId":result[i].threadId})
 					.append($("<span>",{"class":"threadName_tid"}).append(result[i].threadId)).append(result[i].threadName)
 					);
 		}
@@ -117,7 +122,7 @@ function showThreadList(){
 	}
 	for(var i =0;i<dumpdata.length;i++){
 		left.append(
-				$("<div>",{"class":"threadName","threadName":dumpdata[i].threadName})
+				$("<div>",{"class":"threadName","threadId":dumpdata[i].threadId})
 				.append($("<span>",{"class":"threadName_tid"}).append(dumpdata[i].threadId)).append(dumpdata[i].threadName)
 				);
 	}
@@ -128,7 +133,7 @@ $("#left").on("click", ".threadName", function() {
 	$("#left .current").removeClass("current");
 	$(this).addClass("current");
 	right.empty();
-	showThreadInfo(cache[$(this).attr("threadName")]);
+	showThreadInfo(cache[$(this).attr("threadId")]);
 });
 
 function showThreadInfo(data){
