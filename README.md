@@ -22,8 +22,9 @@ ZConsole是一个通过jmx管理jvm、排查jvm问题的web应用。
 
 * ZConsole 是一个springboot项目，启动类为com.zqz.Bootstart；
 
-启动后的访问地址http://ip:8080/jvm/list.html#
-启动端口可以在src\main\resources\application.yml文件中配置
+启动后的访问地址http://ip:8080/jvm/list.html；
+
+启动端口可以在src\main\resources\application.yml文件中配置；
 
 ## java服务器端配置
 远程连接jvm，java启动时加上如下参数：
