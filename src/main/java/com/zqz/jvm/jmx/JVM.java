@@ -272,6 +272,7 @@ public class JVM {
 		if (!this.client.isConnected()) {
 			return;
 		}
+		
 		// 获取ygc信息
 		if (GC_Y_OBJECT_NAME == null) {
 			this.getYGCName();
