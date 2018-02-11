@@ -6,41 +6,43 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="../static/bootstrap/css/bootstrap.min.css" />
 <style type="text/css">
-	#left{
+	#lockLeft,#threadLeft{
 		height:100%;
 		overflow-y:scroll;
 		max-height:700px;
 	}
-	#left .threadName:hover{ 
+	
+	
+	#lockLeft .lockItem:hover,#threadLeft .threadName:hover{ 
 		background-color:#aaa;
 		color:#000;
 	}
 	
-	#left .threadName{
+	#lockLeft .lockItem,#threadLeft .threadName{
 		margin:8px;
 		margin-bottom:16px;
 		cursor:pointer;
 		word-break: break-all; 
 		word-wrap:break-word;
 	}
-	#left .threadName .threadName_tid{
+	#threadLeft .threadName .threadName_tid{
 		width:30px;
 		display:inline-block;
 	}
-	#left .current{
+	#lockLeft .current,#threadLeft .current{
 		background-color:#00f;
 		color:#fff;
 	}
-	#right .stackTrace .stackTitle{
+	#threadRight .stackTrace .stackTitle{
 		font-size:16px;line-height:35px;
 	}
-	#right .stackTrace .stackState{
+	#threadRight .stackTrace .stackState{
 		margin-left:16px;line-height:30px;
 	}
-	#right .stackTrace .stack{
+	#threadRight .stackTrace .stack{
 		margin-left:24px;line-height:25px;
 	}
-	#right .stackTrace .locked{
+	#threadRight .stackTrace .locked{
 		color:#f00;
 	}
 </style>
@@ -54,41 +56,75 @@
 		</div>
 	</div>
 	<div class="row">
-		<div class="col-md-12">
-			排序：
-			<div class="radio-inline">
-  				<label>
-    			<input type="radio" name="threadListSort" class="threadListSort" value="threadName" checked>
-    			线程名
-  				</label>
-			</div>
-			<div class="radio-inline">
-  				<label>
-    			<input type="radio" name="threadListSort" class="threadListSort" value="threadId">
-    			线程id
-  				</label>
-			</div>
+		<div>
+  			<!-- Nav tabs -->
+  			<ul class="nav nav-tabs" role="tablist">
+    			<li role="presentation" class="active"><a href="#threadStackPanel" aria-controls="threadStackPanel" role="tab" data-toggle="tab">线程栈</a></li>
+    			<li role="presentation"><a href="#threadLockPanel" aria-controls="threadLockPanel" role="tab" data-toggle="tab">锁分析</a></li>
+  			</ul>
+ 	 		<!-- Tab panes -->
+  			<div class="tab-content">
+    			<div role="tabpanel" class="tab-pane active" id="threadStackPanel">
+    				<div class="col-md-12">
+						排序：
+						<div class="radio-inline">
+  							<label><input type="radio" name="threadListSort" class="threadListSort" value="threadName" checked>线程名</label>
+						</div>
+						<div class="radio-inline">
+  							<label><input type="radio" name="threadListSort" class="threadListSort" value="threadId">线程id</label>
+						</div>
+					</div>
+  					<div class="col-md-3" id ="threadLeft">
+  					</div>
+  					<div class="col-md-9" id="threadRight">
+  					</div>
+    			</div>
+    			<div role="tabpanel" class="tab-pane" id="threadLockPanel">
+    				<div class="col-md-3" id ="lockLeft">
+  					</div>
+  					<div class="col-md-9" id="lockRight">
+  					</div>
+    			</div>
+  			</div>
 		</div>
-  		<div class="col-md-3" id ="left">
-  		</div>
-  		<div class="col-md-9" id="right">
-  		</div>
 	</div>
 </div>
 <script src="../static/js/jquery-3.2.1.js"></script>
 <script src="../static/js/util.js" type="text/javascript"></script>
 <script src="../static/bootstrap/js/bootstrap.min.js"></script>
 <script type="text/javascript">
+/**jvm自己的线程，功能还未实现**/
 var systemThread={"Attach Listener":"","Finalizer":"","Reference Handler":"","Signal Dispatcher":""}
 var jvmId = gerUrlParam("id");
-var left =$("#left");
-var right=$("#right");
-
+var threadLeft =$("#threadLeft");
+var threadRight=$("#threadRight");
+var lockLeft =$("#lockLeft");
+var lockRight=$("#lockRight");
+/**控制dump按钮只能点击一次**/
 var isClick=false;
-var sortField="threadName";//线程排序字段，默认按线程名称threadName排序,还可以按 threadId
-var dumpdata;
-var cache={};
-
+/**线程排序字段，默认按线程名称threadName排序,还可以按 threadId**/
+var sortField="threadName";
+/**dump出来的线程栈数据缓存*/
+var threadStackListCache=[];
+/**dump出来的线程栈list转换为以线程id为key的map结构，方便查找**/
+var threadStackMapCache={};
+/**
+ lockMap对象结构
+ locksMap={
+	"identityHashCode":{
+		code:identityHashCode,
+		isMonitor:true/false,
+		wait:[],
+		lock:threadId/null
+ 	},
+ 	.........
+}
+**/
+var locksMap={};
+var lockList=[];
+/**
+ *线程dump按钮
+ **/
 $("#dumpThread").click(function(){
 	if(isClick){
 		alert("不可以反复执行该操作");
@@ -98,45 +134,162 @@ $("#dumpThread").click(function(){
 	$(this).attr("disabled","disabled");
 	$.post("/jmx/dumpThread.json?lockedMonitors=true&lockedSynchronizers=true&jvmId="+jvmId, {}, function(result) {
 		result.sort(threadNamePolice)
-		dumpdata = result;
+		threadStackListCache = result;
 		for(var i =0;i<result.length;i++){
-			cache[result[i].threadId]=result[i];
-			left.append(
+			buildLockCache(result[i]);
+			threadStackMapCache[result[i].threadId]=result[i];
+			threadLeft.append(
 					$("<div>",{"class":"threadName","threadId":result[i].threadId})
-					.append($("<span>",{"class":"threadName_tid"}).append(result[i].threadId)).append(result[i].threadName)
-					);
+						.append($("<span>",{"class":"threadName_tid"}).append(result[i].threadId)))
+						.append($("<span>").append(result[i].threadName));
 		}
 		showThreadList();
+		sortThreadLock();
+		showLockList();
 	});
+	
 });
 
 /**
- * 重新显示数据 
- **/
-function showThreadList(){
-	right.empty();
-	left.empty();
-	if(dumpdata==null){
-		alert("请先dump线程栈！");
-		return;
+ * 构建线程锁信息缓存；
+ */
+function buildLockCache(threadStack){
+	if(threadStack.lockedMonitors.length>0){
+		var tmp = threadStack.lockedMonitors;
+		for(var m,n=tmp.length;m<n;m++){
+			if(locksMap[tmp.identityHashCode]!=undefined){
+				locksMap[tmp.identityHashCode].lock=threadStack.threadId;
+			}else{
+				locksMap[tmp.identityHashCode]={
+					"code":tmp.identityHashCode,
+					"lock":threadStack.threadId,
+					"wait":[],
+					"isMonitor":true
+				}
+			}
+		}
 	}
-	for(var i =0;i<dumpdata.length;i++){
-		left.append(
-				$("<div>",{"class":"threadName","threadId":dumpdata[i].threadId})
-				.append($("<span>",{"class":"threadName_tid"}).append(dumpdata[i].threadId)).append(dumpdata[i].threadName)
-				);
+	if(threadStack.lockedSynchronizers.length>0){
+		var tmp = threadStack.lockedSynchronizers;
+		for(var m,n=tmp.length;m<n;m++){
+			if(locksMap[tmp.identityHashCode]!=undefined){
+				locksMap[tmp.identityHashCode].lock=threadStack.threadId;
+			}else{
+				locksMap[tmp.identityHashCode]={
+					"code":tmp.identityHashCode,
+					"lock":threadStack.threadId,
+					"wait":[],
+					"isMonitor":false
+				}
+			}
+		}
+	}
+	if(threadStack.lockInfo!=null){
+		var info = locksMap[threadStack.lockInfo.identityHashCode];
+		if(info == undefined ){
+			info={
+				"code":threadStack.lockInfo.identityHashCode,
+				"lock":null,
+				"wait":[],
+				"isMonitor":null
+			}
+			if(threadStack.lockOwnerId!=-1)
+				info.lock=threadStack.lockOwnerId;
+			locksMap[threadStack.lockInfo.identityHashCode]=info;
+		}
+		info.wait.push(threadStack.threadId);
 	}
 }
 
 
-$("#left").on("click", ".threadName", function() {
-	$("#left .current").removeClass("current");
+/**
+ * 按被阻塞的线程数，对锁排序
+ */
+function sortThreadLock(){
+	for(var key in locksMap){
+		lockList.push(locksMap[key]);
+	}
+	lockList.sort(threadLockSortPolice);
+}
+
+/**
+ * 显示线程锁右侧列表
+ */
+function showLockList(){
+	lockRight.empty();
+	lockLeft.empty();
+	if(threadStackListCache==null){
+		alert("请先dump线程栈！");
+		return;
+	}
+	for(var i =0;i<lockList.length;i++){
+		lockLeft.append(
+			$("<div>",{"class":"lockItem","code":lockList[i].code}).append(
+				$("<span>",{"class":"lock_wait"})
+					.append(lockList[i].wait.length+"--")
+			).append(
+				$("<span>",{"class":"lock_code"}).append(lockList[i].code)
+			)
+		);
+	}
+	
+}
+
+/**
+ * 重置并显示线程堆栈数据 
+ **/
+function showThreadList(){
+	threadRight.empty();
+	threadLeft.empty();
+	if(threadStackListCache==null){
+		alert("请先dump线程栈！");
+		return;
+	}
+	for(var i =0;i<threadStackListCache.length;i++){
+		threadLeft.append(
+				$("<div>",{"class":"threadName","threadId":threadStackListCache[i].threadId})
+				.append($("<span>",{"class":"threadName_tid"}).append(threadStackListCache[i].threadId)).append(threadStackListCache[i].threadName)
+				);
+	}
+}
+
+/**
+ * 点击线程名称，显示线程栈
+ */
+$("#threadLeft").on("click", ".threadName", function() {
+	$("#threadLeft .current").removeClass("current");
 	$(this).addClass("current");
-	right.empty();
-	showThreadInfo(cache[$(this).attr("threadId")]);
+	threadRight.empty();
+	showThreadInfo(threadStackMapCache[$(this).attr("threadId")],threadRight);
 });
 
-function showThreadInfo(data){
+$("#lockLeft").on("click", ".lockItem", function() {
+	$("#lockLeft .current").removeClass("current");
+	$(this).addClass("current");
+	lockRight.empty();
+	console.log(locksMap[$(this).attr("code")]);
+	showLockInfo(locksMap[$(this).attr("code")]);
+});
+
+function showLockInfo(data){
+	lockRight.append($("<div>").append("锁code："+data.code+"  持有锁的线程id："+data.lock+"  等待锁线程数："+data.wait.length))
+	
+	if(data.lock!=null){
+		var lockedThread = threadStackMapCache[data.lock];
+		lockRight.append($("<div>").append("持有锁的线程"));
+		showThreadInfo(threadStackMapCache[data.lock],lockRight);
+	}
+	lockRight.append($("<div>").append("等待锁的线程"));
+	for(var i=0,j=data.wait.length;i<j;i++){
+		lockRight.append($("<div>").append("-------------------"));
+		showThreadInfo(threadStackMapCache[data.wait[i]],lockRight);
+	}
+}
+
+/**
+ * 显示某个线程的线程栈
+ */
+function showThreadInfo(data,target){
 	var stackTrace = $("<div>",{"class":"stackTrace"});
 	var titleDiv = $("<div>",{"class":"stackTitle"}).append("线程名:\""+data.threadName+"\" 线程Id:"+data.threadId +" ");
 	var stateDiv= $("<div>",{"class":"stackState"});
@@ -199,11 +352,6 @@ function showThreadInfo(data){
 			if(lockedMonitors.length>0){
 				for(var m = 0 ,n=lockedMonitors.length;m<n;m++){
 					var lockedMonitor = lockedMonitors[m];
-					/**
-					if(lockedMonitor.lockedStackFrame.className==stack.className &&
-					   lockedMonitor.lockedStackFrame.methodName==stack.methodName &&
-					   lockedMonitor.lockedStackFrame.lineNumber == stack.lineNumber){
-						**/
 					if(lockedMonitor.lockedStackDepth==i){
 						stackTrace.append($("<div>",{"class":"stack locked"}).append("- locked  <"+lockedMonitor.identityHashCode+">  (a "+lockedMonitor.className+")"));
 					}
@@ -221,20 +369,36 @@ function showThreadInfo(data){
 			}
 		}
 	}
-	right.append(stackTrace);
+	target.append(stackTrace);
 }
 
+/**
+ * 右侧线程列表排序
+ */
 $(".threadListSort").click(function(){
 	sortField = $("input[name='threadListSort']:checked").val();
-	if(dumpdata!=null){
-		dumpdata.sort(threadNamePolice)
+	if(threadStackListCache!=null){
+		threadStackListCache.sort(threadNamePolice)
 		showThreadList();
 	}
 });
 
+
+/**
+ *锁排序规则
+ */
+function threadLockSortPolice(a,b){
+	if(a["wait"].length < b["wait"].length){
+		return 1;
+	}else if(a["wait"].length == b["wait"].length){
+		return 0;
+	}else{
+		return -1;
+	}
+}
 	
 /**
- *排序
+ *线程排序规则
  */
 function threadNamePolice(a,b){
 	if(a[sortField] < b[sortField]){
@@ -245,6 +409,8 @@ function threadNamePolice(a,b){
 		return 1;
 	}
 }
+
+
 </script>
 </body>
 </html>
