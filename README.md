@@ -17,14 +17,12 @@ ZMBean是一个通过jmx远程管理jvm的web应用。
 
 
 # 如何运行
-## ZMBean配置
+## ZConsole配置
 
-* 安装mysql数据库，执行sql脚本src\main\resources\zqz_jmx_jvm.sql创建数据库（为方便使用计划将mysql去掉，ZMBean不存储数据）；
-* 创建好数据库后，修改配置文件application.yml中数据库的配置信息；
-* ZMBean 是一个springboot项目，启动类为com.zqz.Bootstart；
+* ZConsole 是一个springboot项目，启动类为com.zqz.Bootstart；
 
 ## java服务器端配置
-java启动时加上如下参数：
+远程连接jvm，java启动时加上如下参数：
 ```
   -Djava.rmi.server.hostname=jvm虚拟机所在的服务器的ip 
   -Dcom.sun.management.jmxremote
@@ -32,4 +30,11 @@ java启动时加上如下参数：
   -Dcom.sun.management.jmxremote.ssl=false
   -Dcom.sun.management.jmxremote.authenticate=false
 ```
+连接与ZConsole部署在同一台服务器上的jvm，无需做任何配置；
+
+
+
+
+
+
   客户端连接url service:jmx:rmi:///jndi/rmi://localhost:8888/server
