@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
+<meta charset=utf-8>
 <head>
 <title>玩转spring boot——websocket</title>
 <script src="https://cdn.bootcss.com/angular.js/1.5.6/angular.min.js"></script>
@@ -20,11 +21,12 @@
 
         //连接
         $scope.connect = function() {
+        	//先连接端点/my-websocket
             var socket = new SockJS('/my-websocket');
             stompClient = Stomp.over(socket);
             stompClient.connect({}, function(frame) {
-                // 注册发送消息
-                stompClient.subscribe('/topic/send', function(msg) {
+                // 注册发送消息，用来接收当客户发送消息后，服务端返回的消息内容，因为服务端： registry.enableSimpleBroker("/topic", "/user");这句话表示在topic和user这两个域上可以向客户端发消息。
+                stompClient.subscribe('/topic/responseClient', function(msg) {
                     console.log("topic/send:"+msg.body);
                 	$scope.data.rows.push(JSON.parse(msg.body));
                     $scope.data.connected = true;
@@ -52,6 +54,11 @@
         }
 
         $scope.send = function() {
+        	/**
+        		服务端configureMessageBroker方法中
+        		registry.setApplicationDestinationPrefixes("/app");这句话表示客户单向服务器端发送时的主题上面需要加"/app"作为前缀。
+        		所以这里需要带上/app前缀
+        	 **/
             stompClient.send("/app/send", {}, JSON.stringify({
                 'message' : $scope.data.message
             }));
