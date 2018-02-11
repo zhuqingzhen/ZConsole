@@ -1,6 +1,7 @@
 
 
-ZConsole是一个通过jmx远程管理jvm的web应用。
+ZConsole是一个通过jmx排查jvm问题的web应用。
+解决了应用没有开启jmx端口，无法远程连接，linux无法运行jconsole之类的应用查看jvm状况；
 
 目前已经实现的功能：
 1. 远程连接开启了jmx端口的jvm；
