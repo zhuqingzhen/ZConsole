@@ -1,172 +1,177 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="utf-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="stylesheet" href="../static/bootstrap/css/bootstrap.min.css" />
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="../static/bootstrap/css/bootstrap.min.css"/>
+	<style type="text/css">
+		.mg-top-20{
+			margin-top: 20px;
+		}
+	</style>
 </head>
 <body>
-	<div class="container">
-		<div class="row">
-			<div class="col-md-4">
-				<h5>刷新间隔：</h5>
-				<span class="text-left">
-				<label class="radio-inline"> 
-					<input class="interval" type="radio" name="interval" value="1" checked> 1秒
-				</label>
-				<label class="radio-inline">
-					<input class="interval" type="radio" name="interval" value="10"> 10秒
-				</label>
-				<label class="radio-inline"> 
-					<input class="interval" type="radio"	name="interval" value="60">1分钟
-				</label>
-				</span>
-			</div>
-			<div class="col-md-4">
-				<h5>命令：</h5>
-				<span class="text-left">
-				<label class="radio-inline"> 
-					<input class="action" type="radio" name="action" value="gcutil" checked>gcutil
-				</label>
-				<label class="radio-inline"> 
-					<input class="action" type="radio"	name="action" value="gc">gc
-				</label>
-				</span>
-			</div>
-			<div class="col-md-4">
+<div class="container">
+	<div class="row mg-top-20">
+
+		<div class="col-md-12">
+			<div class="form-inline">
+				<div class="form-group">
+					<label class="sr-only">Command: jstat </label>
+					<p class="form-control-static">Command: jstat </p>
+				</div>
+				<div class="form-group">
+					<div class="dropdown">
+						<button class="btn btn-default dropdown-toggle" id="options-menu" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+							<span id="option-name">-gc</span>
+							<span class="caret"></span>
+						</button>
+						<ul id="ul-options" class="dropdown-menu" aria-labelledby="options-menu">
+
+						</ul>
+					</div>
+
+					<input type="hidden" id="option" name="option" value="-gc"/>
+				</div>
+				<div class="form-group">
+					<p class="form-control-static" id="pid">-</p>
+				</div>
+				<div class="form-group">
+					<label for="interval" class="sr-only">Interval</label>
+					<input type="text" class="form-control" id="interval" placeholder="默认：1000，单位：ms">
+				</div>
+				<div class="form-group">
+					<label for="times" class="sr-only">Interval</label>
+					<input type="text" class="form-control" id="times" name="times" placeholder="默认：-1，单位：次">
+				</div>
+				<button type="button" id="exec" class="btn btn-primary" onclick="jstat.exec()">执行</button>
 			</div>
 		</div>
-		
-		 <button type="button" id="start" class="btn btn-primary" style="margin-top:20px;"> 
-		 	<span id="title">执行  :</span>
-		 	<span id="comandline"></span>
-		 </button>
-		<div>
+	</div>
+	<div class="row mg-top-20">
+		<div id="result" class="col-md-12" style="height: 600px; overflow-y: scroll;">
+
+			<table class="table scrolltable">
+				<thead>
+				</thead>
+				<tbody>
+
+				</tbody>
+			</table>
 		</div>
 	</div>
 
-	<script src="../static/js/jquery-3.2.1.js"></script>
-	<script src="../static/bootstrap/js/bootstrap.min.js"></script>
-	<script src="https://cdn.bootcss.com/sockjs-client/1.1.4/sockjs.min.js"></script>
-	<script src="https://cdn.bootcss.com/stomp.js/2.3.3/stomp.min.js"></script>
-	<script src="../static/js/uuid.js"></script>
-	<script type="text/javascript">
-	var jvmId = gerUrlParam("jvmId");
-	var stompClient = null;
-	var action = null;
-	var interval = null;
-	var $zqzWS={
-		connected:false,
-		uuid : Math.uuid(),
-		connect : function(){
-        	var socket = new SockJS("/my-websocket");
-        	stompClient = Stomp.over(socket);
-        	stompClient.connect({},
-        	  function(frame) {
-        		setConnected(true);
-            	console.log('Connected: ' + frame);
-            	stompClient.subscribe('/topic/send', function(msg){
-	                var a  = JSON.parse(msg.body);
-	                alert(a)
-	                console.log("topic/send:"+msg.body);
-    	        });
-        	    stompClient.subscribe('/user/' + $zqzWS.uuid + '/message',function(greeting){
-            	    alert(JSON.parse(greeting.body).content);
-                	showGreeting(JSON.parse(greeting.body).content);
-            	});
-        	  },
-        	  function errorCallBack (error) {
-        		// 连接失败时（服务器响应 ERROR 帧）的回调方法
-            	console.log('连接失败【' + error + '】');
-            	setConnected(false);
-    		  }
-            );
-        },
-	
-		/**发送消息**/
-		send : function(cmd,data){
-		/**
-		服务端configureMessageBroker方法中
-		registry.setApplicationDestinationPrefixes("/app");这句话表示客户单向服务器端发送时的主题上面需要加"/app"作为前缀。
-		所以这里需要带上/app前缀
-	 	**/
-    		stompClient.send("/app/send", {}, JSON.stringify({'message': cmd,'data':data}));
+</div>
+
+<script src="../static/js/jquery-3.2.1.js"></script>
+<script src="../static/bootstrap/js/bootstrap.min.js"></script>
+<script src="../static/js/util.js" type="text/javascript"></script>
+<script type="text/javascript">
+	var jstat = {
+		jvmId : gerUrlParam("jvmId"),
+		setOption : function(option) {
+			$("#option").val(option);
+			$("#option-name").text(option);
 		},
-	
-		/**断开连接**/
-		disconnect : function() {
-			if (stompClient != null) {
-	    		stompClient.disconnect();
-	    	}
-			setConnected(false);
-	    	console.log("主动断开连接");
-		}
-	};
-	
-	function getComandLine(){
-			interval = $("input[name='interval']:checked").val();
-			action = $("input[name='action']:checked").val();
-			$("#comandline").html("jstat  -" + action + "  " + interval +"s");
-			$("#title").css("display","inline-block");
-		}else{
-			$("#comandline").html("与服务器端断开连接");
-			$("#title").css("display","none");
-		}
-	};
-	
-	getComandLine();
-	
-	$(".interval").change(function(){
-		getComandLine();
-	});
-	
-	$(".action").change(function(){
-		getComandLine();
-	});
-	
-	
-	function setConnected(connected) {
-		if(connected){
-			$("#start").removeAttr("disabled");
-		}else{
-			$("#start").attr("disabled","disabled");
-		}
-		$zqzWS.connected = connected;
-		getComandLine();
-   	};
-	
-   /**
-   	*点击启动按钮
-   	**/
-	$("#start").click(function(){
-		if($zqzWS.connected){
-			var interval = $("input[name='interval']:checked").val();
-			var action = $("input[name='action']:checked").val();
-			//启动jstat
-			$zqzWS.send("jstat_start",jvmId);
-		}
-   	});
-   
-	/**
-	 * 命令格式cmd,jvmId
-	 * jstat_gc_data,jvmId
-	 * jstat_gcutil_data,jvmId
-	 **/
-	function jstatInterval(){
-    	setTimeout(function(){
-    		if(action == "gcutil"){
-    			$zqzWS.send("jstat_gcutil_data",jvmId);
-    		}else if(action == "gc"){
-    			$zqzWS.send("jstat_gc_data",jvmId);
-    		}
-    		if(connected){
-    			statInterval();
-    		}
-    	},interval*1000)
+		setInterval : function(interval){
+			$("#interval").val(interval);
+		},
+		setTimes : function(times){
+			$("#times").val(times);
+		},
+		// 获取操作名称到下拉列表
+		getOptions : function(){
+			$.get("/jstat/options",function(options){
+				var ul = $("#ul-options");
+				for(var i = 0; i< options.length; i++){
+					ul.append("<li><a href='javascript:jstat.setOption(\""+options[i]+"\")'>"+options[i]+"</a></li>");
+				}
+			})
+		},
+		getOption : function () {
+			return $("#option").val();
+		},
+		getInterval : function(){
+			var val = $("#interval").val();
+			return val ? val : 1000;
+		},
+		getTimes : function(){
+			var val = $("#times").val();
+			return val ? val : -1;
+		},
+		getUrl : function(){
+			var option = jstat.getOption();
+			var interval = jstat.getInterval();
+			var times = jstat.getTimes();
+			var vmid = jstat.jvmId;
+			return "/jstat/exec/"+option +"/" + -vmid + "/" + interval + "/" + times;
+		},
+		// 保存的EventSource对象
+		source : null,
+		// 新建EventSource对象
+		newSource : function(){
+			jstat.source = new EventSource(jstat.getUrl());
+			return jstat.source;
+		},
+		cancel : function(){
+			jstat.source && jstat.source.close();
+			jstat.source = null;
+			$("#exec").attr("class","btn btn-primary");
+			$("#exec").text("执行");
+			$("#exec").attr("onclick","jstat.exec()");
+		},
+		startExec : function(){
+			$("#exec").attr("class","btn btn-danger");
+			$("#exec").text("终止");
+			$("#exec").attr("onclick","jstat.cancel()");
+		},
+		exec : function(){
+			var header = true;
+			$("#result").scrollTop($("#result")[0].scrollHeight);
+			$("#result table thead").empty();
+			$("#result table tbody").empty();
+			this.startExec();
+			var source = jstat.source ? jstat.source : jstat.newSource();
+			// 收到服务器发来的数据，触发message事件
+			source.onmessage = function (event) {
+				var obj = header ? $("#result table thead") : $("#result table tbody");
+				var tr = $("<tr></tr>");
+				if (!event.data) {
+					return;
+				}
+				var arr = eval(event.data);
+				for (var i = 0; i < arr.length; i++) {
+					var ele = header ? $("<th></th>") : $("<td></td>");
+					ele.text(arr[i]);
+					tr.append(ele);
+				}
+				obj.append(tr);
+				header = false;
+				// 滚动到底部
+				$("#result").scrollTop($("#result")[0].scrollHeight);
+			};
+			source.onopen = function (event) {
+				console.log("open");
+			};
+			source.onerror = function (event) {
+				source.close();
+				jstat.source = null;
+			};
+		},
+		interval : $("#interval").val(),
+		times : $("#times").val()
 	}
-	
-	 $zqzWS.connect();
+	$(function () {
+
+		$("#start").click(function () {
+			jstat.exec();
+
+		});
+		jstat.getOptions();
+		$("#pid").text(-jstat.jvmId);
+	})
+
 </script>
 </body>
 </html>
