@@ -97,7 +97,8 @@
     			</div>
     			<div role="tabpanel" class="tab-pane" id="threadLockPanel">
     				<div class="col-md-12">
-    					M：代表synchronized锁;R：代表可重入锁
+    					<p>格式：等待锁线程数量--锁类型--锁id</p>
+    					<p>锁类型：M：synchronized锁;&nbsp;&nbsp; R：可重入锁; &nbsp;&nbsp;P：LockSupport.park(); &nbsp;&nbsp;N：未知<p>
     				</div>
     				<div class="col-md-3" id ="lockLeft">
   					</div>
@@ -132,7 +133,7 @@ var threadStackMapCache={};
  locksMap={
 	"identityHashCode":{
 		code:identityHashCode,
-		isMonitor:true/false,
+		lockType:true/false,
 		wait:[],
 		lock:threadId/null
  	},
@@ -141,6 +142,11 @@ var threadStackMapCache={};
 **/
 var locksMap={};
 var lockList=[];
+var stat_EntrySet=[];
+var stat_WaitSet=[];
+var stat_retreenLock=[];
+var stat_park=[];
+var stat_run=[];
 /**
  *线程dump按钮
  **/
@@ -169,6 +175,34 @@ $("#dumpThread").click(function(){
 	});
 	
 });
+var aqsCondition = "java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject";
+var classObject = "java.lang.Object";
+var classUnsafe = "sun.misc.Unsafe";
+var reenTrantLock = "java.util.concurrent.locks.Reentrant";
+function getLockType(threadStack){
+	var type = "N";
+	//可重入锁
+	if(threadStack.lockInfo.className == aqsCondition 
+		|| threadStack.lockInfo.className.startWith(reenTrantLock)	
+		){
+		type="R";
+	}else if(threadStack.stackTrace.length>0){
+		//监视器
+		if( threadStack.stackTrace[0].className == classObject
+			&& threadStack.stackTrace[0].methodName == "wait" 
+			&& threadStack.stackTrace[0].nativeMethod == true
+				){
+				type="M";
+		//park
+		}else if(threadStack.stackTrace[0].className==classUnsafe
+			&& threadStack.stackTrace[0].methodName == "park" 
+			&& threadStack.stackTrace[0].nativeMethod == true
+			){
+				type="P";
+		}
+	}
+	return type;
+}
 
 /**
  * 构建线程锁信息缓存；
@@ -179,14 +213,14 @@ function buildLockCache(threadStack){
 		for(var m=0,n=tmp.length;m<n;m++){
 			if(locksMap[tmp[m].identityHashCode]!=undefined){
 				locksMap[tmp[m].identityHashCode].lock=threadStack.threadId;
-				locksMap[tmp[m].identityHashCode].isMonitor=true;
+				locksMap[tmp[m].identityHashCode].lockType="M";
 				locksMap[tmp[m].identityHashCode].code=tmp[m].identityHashCode;
 			}else{
 				locksMap[tmp[m].identityHashCode]={
 					"code":tmp[m].identityHashCode,
 					"lock":threadStack.threadId,
 					"wait":[],
-					"isMonitor":true
+					"lockType":"M"
 				}
 			}
 		}
@@ -196,26 +230,27 @@ function buildLockCache(threadStack){
 		for(var m=0,n=tmp.length;m<n;m++){
 			if(locksMap[tmp[m].identityHashCode]!=undefined){
 				locksMap[tmp[m].identityHashCode].lock=threadStack.threadId;
-				locksMap[tmp[m].identityHashCode].isMonitor=false;
+				locksMap[tmp[m].identityHashCode].lockType="R";
 				locksMap[tmp[m].identityHashCode].code=tmp[m].identityHashCode;
 			}else{
 				locksMap[tmp[m].identityHashCode]={
 					"code":tmp[m].identityHashCode,
 					"lock":threadStack.threadId,
 					"wait":[],
-					"isMonitor":false
+					"lockType":"R"
 				}
 			}
 		}
 	}
+	
 	if(threadStack.lockInfo!=null){
 		var info = locksMap[threadStack.lockInfo.identityHashCode];
-		if(info == undefined ){
+		if(info == undefined){
 			info={
 				"code":threadStack.lockInfo.identityHashCode,
 				"lock":null,
 				"wait":[],
-				"isMonitor":null
+				"lockType":getLockType(threadStack)
 			}
 			if(threadStack.lockOwnerId!=-1)
 				info.lock=threadStack.lockOwnerId;
@@ -251,7 +286,7 @@ function showLockList(){
 		lockLeft.append(
 			$("<div>",{"class":"lockItem","code":lockList[i].code}).append(
 				$("<span>",{"class":"lock_wait"})
-					.append(lockList[i].wait.length+"--"+(lockList[i].isMonitor?"M":"R")+"--")
+					.append(lockList[i].wait.length+"--"+(lockList[i].lockType)+"--")
 			).append(
 				$("<span>",{"class":"lock_code"}).append(lockList[i].code)
 			)
