@@ -126,10 +126,9 @@ public class JMXClient {
 			String connectorAddress = vm.getAgentProperties().getProperty(JMX_LOCAL_CONNECTOR_ADDRESS);
 			if (connectorAddress == null) {
 				connectorAddress = getConnectStr(vm);
-				if(connectorAddress == null){
-					vm.detach();
-					continue;
-				}
+//				if(connectorAddress == null){
+//					vm.detach();
+//				}
 			}
 			LocalVMInfo info = new LocalVMInfo();
 			info.setId("-" + desc.id());
@@ -181,8 +180,12 @@ public class JMXClient {
 	 * @throws IOException
 	 */
 	public static String getConnectStr(VirtualMachine vm) throws AgentLoadException, AgentInitializationException, IOException{
-		vm.loadAgent(getAgentFile(), JMX_REMOTE);
-		return (String)vm.getAgentProperties().get(JMX_LOCAL_CONNECTOR_ADDRESS);
+		try{
+			vm.loadAgent(getAgentFile(), JMX_REMOTE);
+			return (String)vm.getAgentProperties().get(JMX_LOCAL_CONNECTOR_ADDRESS);
+		}catch(com.sun.tools.attach.AgentInitializationException e){
+			return null;
+		}
 	}
 
 	/**
