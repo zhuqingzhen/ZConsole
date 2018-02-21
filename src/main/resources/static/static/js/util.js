@@ -213,6 +213,17 @@ Date.prototype.format = function (format) {
     return format;
 };
 
+/**字符串startWith**/
+String.prototype.startWith=function(str){     
+	var reg=new RegExp("^"+str);     
+	return reg.test(this);        
+}
+/**字符串endWith**/
+String.prototype.endWith=function(str){     
+	var reg=new RegExp(str+"$");     
+	return reg.test(this);        
+}
+
 /**
  * 毫秒格式化
  * @param mss
