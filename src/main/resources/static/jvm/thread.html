@@ -178,6 +178,7 @@ $("#dumpThread").click(function(){
 var aqsCondition = "java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject";
 var classObject = "java.lang.Object";
 var classUnsafe = "sun.misc.Unsafe";
+var classUnsafe9 = "jdk.internal.misc.Unsafe";
 var reenTrantLock = "java.util.concurrent.locks.Reentrant";
 function getLockType(threadStack){
 	var type = "N";
@@ -194,7 +195,8 @@ function getLockType(threadStack){
 				){
 				type="M";
 		//park
-		}else if(threadStack.stackTrace[0].className==classUnsafe
+		}else if(
+			(threadStack.stackTrace[0].className==classUnsafe || threadStack.stackTrace[0].className==classUnsafe9)
 			&& threadStack.stackTrace[0].methodName == "park" 
 			&& threadStack.stackTrace[0].nativeMethod == true
 			){
