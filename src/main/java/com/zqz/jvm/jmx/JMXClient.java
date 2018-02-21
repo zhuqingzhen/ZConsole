@@ -67,7 +67,7 @@ public class JMXClient {
 	}
 	
 
-	public static void main(String[] args) throws Exception {
+	public static void main1(String[] args) throws Exception {
 		List<LocalVMInfo> vms = JMXClient.listLocalVM();
 		LocalVMInfo target=null;
 		for(int i =0 ;i<vms.size() ;i++){

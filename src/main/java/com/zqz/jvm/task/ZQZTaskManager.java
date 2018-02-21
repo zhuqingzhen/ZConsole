@@ -381,7 +381,7 @@ public class ZQZTaskManager {
 		delJob(jobKey);
 	}
 
-	public static void main(String[] args) throws SchedulerException, InterruptedException {
+	public static void main1(String[] args) throws SchedulerException, InterruptedException {
 
 		String port = "6666";
 		String host = "192.168.2.74";

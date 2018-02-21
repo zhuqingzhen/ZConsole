@@ -130,10 +130,4 @@ public class JMXTypeUtil {
 		return result;
 	}
 	
-	public static void main(String[] args) {
-		 Integer[] a = new  Integer[10];
-		 if(a.getClass().isArray()){
-			Object[] obj = (Object[])a;
-		 }
-	}
 }
