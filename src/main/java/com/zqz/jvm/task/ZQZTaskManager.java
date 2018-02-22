@@ -82,7 +82,7 @@ public class ZQZTaskManager {
 	 * 清理掉某jvm全部的任务
 	 * @return
 	 */
-	public static void clearJob(long  jvmId){
+	public static void clearAllJob(long  jvmId){
 		Set<JobKey> jobKeys = jobs.get(jvmId);
 		if(jobKeys!=null){
 			for (JobKey item : jobKeys) {
