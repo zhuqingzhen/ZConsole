@@ -100,7 +100,7 @@ public class IdWorker{
     }
 
     //---------------测试---------------
-    public static void main(String[] args) {
+    public static void main1(String[] args) {
         for (int i = 0; i < 30; i++) {
             System.out.println(IdWorker.nextId());
         }

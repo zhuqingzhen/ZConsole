@@ -33,7 +33,6 @@
 		</table>
 	</div>
 
-
 	<div id="addLocalJVMDialog" class="modal fade" tabindex="-1"
 		role="dialog">
 		<div class="modal-dialog" style="width: 95%; height: 95%;"
@@ -112,6 +111,7 @@
 	<script src="../static/js/jquery-3.2.1.js"></script>
 	<!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
 	<script src="../static/bootstrap/js/bootstrap.min.js"></script>
+	<script src="../static/js/util.js"></script>
 	<script type="text/javascript">
 		$("#addLocalJVMBtn").click(function() {
 			$.get("/jvm/locallist.html", {}, function(result) {
@@ -126,15 +126,15 @@
 
 		function show() {
 			$.post("/jvm/getJVMList.json", {}, function(result) {
-				console.log(result)
-				for ( var index in result) {
-					showJvmToList(result[index])
+				if(result!=""){
+					for ( var index in result) {
+						showJvmToList(result[index])
+					}
 				}
 			});
 		}
 
 		function showJvmToList(jvm) {
-			console.log(jvm)
 			var tr = $("<tr>");
 			tr.append($("<td>").append(jvm.id));
 			if (jvm.name.length > 50) {
@@ -186,6 +186,14 @@
 					jvmId : jvm.id,
 					name : jvm.name
 				}).append("thread"));
+
+				operation.append($("<a>", {
+					class : "btn btn-default jstatBtn",
+					href : "#",
+					role : "button",
+					jvmId : jvm.id,
+					name : jvm.name
+				}).append("jstat"));
 			}
 			
 			tr.append(operation);
@@ -226,6 +234,10 @@
 		
 		$(".container").on("click", ".threadBtn", function() {
 			window.open("thread.html?id=" + $(this).attr("jvmId"));
+		});
+
+		$(".container").on("click", ".jstatBtn", function() {
+			window.open("jstat.html?jvmId=" + $(this).attr("jvmId"));
 		});
 		
 		$(".container").on("click", ".deleteBtn", function() {

@@ -72,7 +72,6 @@
 								info.append($("<div>").append(data[i].type+" "+data[i].name+"="+jsonFormatToHtml(JSON.stringify(result[data[i].name]))));
 							}
 						});
-						
 					}else if(treeNode.type == 3){//MBean--方法 ，显示全部方法
 						var data = jmxInfoCache[treeNode.objectName].operations;
 						info.empty();

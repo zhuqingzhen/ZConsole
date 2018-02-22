@@ -117,7 +117,7 @@ public abstract class BaseTask implements Runnable {
 	 * @throws Exception
 	 */
 	public void removeJob() throws Exception {
-		ZQZTaskManager.stopJob(jobKey);
+		ZQZTaskManager.delJob(jobKey);
 	}
 
 	/**

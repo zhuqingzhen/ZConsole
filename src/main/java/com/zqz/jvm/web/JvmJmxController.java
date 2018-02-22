@@ -1,8 +1,6 @@
 package com.zqz.jvm.web;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.management.MBeanInfo;
@@ -31,6 +29,7 @@ import com.zqz.jvm.service.JvmJmxService;
 public class JvmJmxController {
 	
 	private static Logger logger = LoggerFactory.getLogger(JvmJmxController.class);
+	
 	/**
 	 * 点对点websocket通信
 	 */

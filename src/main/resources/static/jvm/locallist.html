@@ -9,11 +9,15 @@
 </head>
 <body>
 -->
+<style type="text/css">
+table{table-layout: fixed;}
+td{word-break: break-all; word-wrap:break-word;}
+</style>
 	<div class="container">
 	 
 	<div class="row">
 		<div class="col-xs-12 col-md-10">
-			<h1>本地jvm列表</h1>
+			<h1>本地jvm列表（暂不支持jdk9）</h1>
 			<h5>显示与本应用部署在同一服务器上的jvm实例列表，包括当前应用进程,当jvm没有开启jmx端口，又不能重启应用时，使用此功能</h5>
 		</div>
 	</div>
@@ -44,11 +48,21 @@
 		function showJvmToList(jvm){
 			var tr = $("<tr>");
 			tr.append($("<td>").append(jvm.id));
-			tr.append($("<td>").append(jvm.name=="com.zqz.Bootstart"?jvm.name+"<span style=color:#f00>(当前应用)</span>":jvm.name));
-			var operation = $("<td>");
-			operation.append(
-				$("<a>",{class:"btn btn-default monitorBtn",href:"#",role:"button",jvmId:jvm.id,name:jvm.name}).append("加入监控列表")
+			tr.append(
+				$("<td>").append(
+					jvm.name=="com.zqz.Bootstart"?jvm.name+"<span style=color:#f00>(当前应用)</span>":jvm.name
+				)
 			);
+			var operation = $("<td>");
+			if(jvm.localConnectorAddress==null){
+				operation.append("无法连接到此jvm，系统参数"
+						+(jvm.localConnectorAddress==null?"<br>【"+jsonFormat(JSON.stringify(jvm.systemProperties))+"】":"")
+				);
+			}else{
+				operation.append(
+					$("<a>",{class:"btn btn-default monitorBtn",href:"#",role:"button",jvmId:jvm.id,name:jvm.name}).append("加入监控列表")
+				);
+			}
 			tr.append(operation);
 			container.append(tr);
 		}

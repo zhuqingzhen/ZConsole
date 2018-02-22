@@ -37,7 +37,7 @@ public class JvmController {
 	
     @RequestMapping(value="/delete/{jvmId}")
     public void delete(@PathVariable("jvmId") Long jvmId) {
-    	ZQZTaskManager.clearJob(jvmId);
+    	ZQZTaskManager.clearAllJob(jvmId);
     	NotificationManager.clearNotification(jvmId);
     	JVMManager.remove(jvmId);
     }
