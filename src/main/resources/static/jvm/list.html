@@ -126,7 +126,6 @@
 
 		function show() {
 			$.post("/jvm/getJVMList.json", {}, function(result) {
-				debugger;
 				if(result!=""){
 					for ( var index in result) {
 						showJvmToList(result[index])
