@@ -83,13 +83,14 @@ public class ZQZTaskManager {
 	 * @return
 	 */
 	public static void clearJob(long  jvmId){
-		Set<JobKey> jobKeys = jobs.remove(jvmId);
-		if(jobKeys!=null)
-		for(JobKey item : jobKeys){
-			try {
-				delJob(item);
-			} catch (Exception e) {
-				logger.error("移除job异常,jvmId="+jvmId+"  jobKeys:"+jobKeys.toString(), e);
+		Set<JobKey> jobKeys = jobs.get(jvmId);
+		if(jobKeys!=null){
+			for (JobKey item : jobKeys) {
+				try {
+					delJob(item);
+				} catch (Exception e) {
+					logger.error("移除job异常,jvmId=" + jvmId + "  jobKeys:" + jobKeys.toString(), e);
+				}
 			}
 		}
 	}
@@ -169,7 +170,17 @@ public class ZQZTaskManager {
 	 * @param jobName
 	 * @throws Exception 
 	 */
-	private static void delJob(JobKey jobKey) throws Exception {
+	public static void delJob(JobKey jobKey) throws Exception  {
+		//清理定时任务
+		try {
+			Scheduler scheduler = schedulerfactory.getScheduler();
+			if (!scheduler.isShutdown()) {
+				scheduler.deleteJob(jobKey);
+			}
+		} catch (SchedulerException e) {
+			logger.error("--del job："+jobKey.getName(),e);
+		}
+		//清理掉缓存
 		long jvmId = JobName.praiseJobName(jobKey.getName()).getJvmId();
 		Set<JobKey> jmb = jobs.get(JobName.praiseJobName(jobKey.getName()).getJvmId());
 		if(jmb != null && jmb.size()>0){
@@ -180,7 +191,9 @@ public class ZQZTaskManager {
 					logger.debug("--del job："+jobKey.getName());
 				}
 			}
-		}else{
+		}
+		//如果任务长度为空,则删除key
+		if(jobs.get(jvmId).size() == 0){
 			jobs.remove(jvmId);
 		}
 	}
@@ -367,19 +380,7 @@ public class ZQZTaskManager {
 		return jobDetail.getKey();
 	}
 	
-	/**
-	 * 删除任务
-	 * 
-	 * @param jobName
-	 * @throws SchedulerException
-	 */
-	public static void stopJob(JobKey jobKey) throws Exception {
-		Scheduler scheduler = schedulerfactory.getScheduler();
-		if (!scheduler.isShutdown()) {
-			scheduler.deleteJob(jobKey);
-		}
-		delJob(jobKey);
-	}
+
 
 	public static void main1(String[] args) throws SchedulerException, InterruptedException {
 
