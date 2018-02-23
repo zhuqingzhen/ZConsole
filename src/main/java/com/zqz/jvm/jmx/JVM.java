@@ -41,6 +41,10 @@ public class JVM {
 	private long id;
 	/** jvm的名称 */
 	private String name;
+	/** jvm版本**/
+	private String jvmVersion=null;
+	/**操作系统版本**/
+	private String operationVersion = null;
 
 	/** gc信息收集周期，单位毫秒 ，默认为1秒 **/
 	public long interval = 1000;
@@ -452,6 +456,28 @@ public class JVM {
 	}
 	
 	/**
+	 * jvm版本，1.6，1.7,1.8,9
+	 * @return
+	 * @throws Exception
+	 */
+	public String getJVMVersion() throws Exception{
+		if(jvmVersion == null)
+			this.jvmVersion = (String) MBeanUtil.getObjectNameValue(new ObjectName("java.lang:type=Runtime"), "SpecVersion", this);
+		return this.jvmVersion;
+	}
+	
+	/**
+	 * 获取操作系统版本
+	 * @return
+	 * @throws Exception
+	 */
+	public String getOperationVersion() throws Exception{
+		if(operationVersion == null)
+			this.operationVersion =String.valueOf(MBeanUtil.getObjectNameValue(new ObjectName("java.lang:type=OperatingSystem"), "Name", this))+ String.valueOf(MBeanUtil.getObjectNameValue(new ObjectName("java.lang:type=OperatingSystem"), "Version", this));
+		return this.operationVersion;
+	}
+	
+	/**
 	 * 获取OperatingSystem
 	 * @return
 	 * @throws Exception
@@ -481,11 +507,6 @@ public class JVM {
 					)
 				)
 			);
-		obj.setSystemLoadAverage(
-				String.valueOf( 
-					MBeanUtil.getObjectNameValue(objectName, "SystemLoadAverage", this)
-				)
-			);
 		obj.setTotalPhysicalMemorySize(
 				Long.parseLong(
 					String.valueOf( 
@@ -510,7 +531,14 @@ public class JVM {
 					MBeanUtil.getObjectNameValue(objectName, "Version", this)
 				)
 			);
-		if(!obj.getName().toLowerCase().startsWith("win")){  
+		obj.setProcessCpuTime(
+				Long.parseLong(
+					String.valueOf(
+							MBeanUtil.getObjectNameValue(objectName, "ProcessCpuTime", this)
+					)
+				)
+			);
+		if(!obj.getName().toLowerCase().startsWith("win")){
 			obj.setMaxFileDescriptorCount(
 				Long.parseLong(
 					String.valueOf( 
@@ -523,6 +551,28 @@ public class JVM {
 					String.valueOf( 
 							MBeanUtil.getObjectNameValue(objectName, "OpenFileDescriptorCount", this)
 					)
+				)
+			);
+		}
+		/**
+		 * window操作系统没有load指标
+		 */
+		if(!obj.getName().toLowerCase().startsWith("win") && this.getJVMVersion().compareTo("1.6") >= 0){
+				obj.setSystemLoadAverage(
+					String.valueOf(
+						MBeanUtil.getObjectNameValue(objectName, "SystemLoadAverage", this)
+					)
+				);
+		}
+		if(this.getJVMVersion().compareTo("1.7") >= 0){
+			obj.setSystemCpuLoad(
+				String.valueOf( 
+					MBeanUtil.getObjectNameValue(objectName, "SystemCpuLoad", this)
+				)
+			);
+			obj.setProcessCpuLoad(
+				String.valueOf( 
+					MBeanUtil.getObjectNameValue(objectName, "ProcessCpuLoad", this)
 				)
 			);
 		}

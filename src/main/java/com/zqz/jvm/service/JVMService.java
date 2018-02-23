@@ -1,7 +1,9 @@
 package com.zqz.jvm.service;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +29,17 @@ import com.zqz.jvm.task.job.ConnectTask;
 public class JVMService {
 	
 	private static Logger logger = LoggerFactory.getLogger(JVMService.class);
+	
+	public Map<String,String> getVersion(long jvmId) throws Exception{
+		JVM jvm = JVMManager.get(jvmId);
+		if (jvm == null) {
+			return null;
+		}
+		Map<String,String> version = new HashMap<String,String>();
+		version.put("jvm", jvm.getJVMVersion());
+		version.put("operation", jvm.getOperationVersion());
+		return version;
+	}
 	
 	/**
 	 * 添加本地JVM实例

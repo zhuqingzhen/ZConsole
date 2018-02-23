@@ -94,6 +94,15 @@ function showRuntime(){
 			    .append($("<td>").append("主机名"))
 			    .append($("<td>").append(result.hostName)));
 		runtime.append($("<tr>")
+				.append($("<td>").append("启动用户"))
+				.append($("<td>").append(result.systemProperties["user.name"])));
+		runtime.append($("<tr>")
+				.append($("<td>").append("时区"))
+				.append($("<td>").append(result.systemProperties["user.timezone"])));
+		runtime.append($("<tr>")
+				.append($("<td>").append("语言"))
+				.append($("<td>").append(result.systemProperties["user.language"]+"_"+result.systemProperties["user.country"])));
+		runtime.append($("<tr>")
 			    .append($("<td>").append("jvm版本"))
 			    .append($("<td>").append(result.vmName+" "+result.specVersion+" "+result.vmVersion
 				)));

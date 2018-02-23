@@ -34,32 +34,38 @@
 		display:inline-block;
 		float:right;
 	}
-	#lockLeft .current,#threadLeft .current{
+	.current{
 		background-color:#00f;
 		color:#fff;
 	}
-	#lockRight .stackTrace .stackTitle,#threadRight .stackTrace .stackTitle{
-		font-size:16px;line-height:35px;
+	.stackTrace .stackTitle{
+		font-size:22px;line-height:35px;margin:8px;
 	}
-	#lockRight .stackTrace .stackState,#threadRight .stackTrace .stackState{
-		margin-left:16px;line-height:30px;
+	.stackTrace .lockedSynchronizers,.stackTrace .stackState{
+		margin-left:26px;line-height:30px;
 	}
-	#lockRight .stackTrace .stack,#threadRight .stackTrace .stack{
+	.stackTrace .stack{
 		margin-left:24px;line-height:25px;
 	}
-	#lockRight .stackTrace .locked,#threadRight .stackTrace .locked{
+	.stackTrace .lockedSynchronizers,.stackTrace .locked{
 		color:#f00;
 	}
 	.tab-pane{
 		padding-top:16px;
 	}
 	.title1{
-		font-size:18px;
+		font-size:25px;
 		font-weight:800;
+		line-height:40px;
+		margin:16px;
 	}
 	.clean{
 		float:none;
 		clear:both;
+	}
+	.emptyLine{
+		line-height:30px;
+		margin:8px;
 	}
 </style>
 </head>
@@ -429,12 +435,12 @@ function showThreadInfo(data,target){
 			}
 		}
 		if(state=="waitSet"){
-			stackTrace.append($("<div>",{ "class":"emptyLine"}).append(" 已释放的锁(无法获取加锁行号)："));
+			stackTrace.append($("<div>",{ "class":"emptyLine"}).append(" 等待条件满足再次获取的锁(无法获取加锁行号)："));
 			stackTrace.append($("<div>",{"class":"stack locked"}).append("- locked  <"+data.lockInfo.identityHashCode+">  (a "+data.lockInfo.className+") 持有锁线程:"+data.lockOwnerId));
 		}
 		if(data.lockedSynchronizers.length>0){
 			for(var i = 0,j = data.lockedSynchronizers.length;i<j;i++){
-				stackTrace.append($("<div>",{ "class":"lockedSynchronizers"}).append("Locked ownable synchronizers:"));
+				stackTrace.append($("<div>",{ "class":"emptyLine"}).append("Locked ownable synchronizers:"));
 				stackTrace.append($("<div>",{ "class":"lockedSynchronizers"}).append("- <"+data.lockedSynchronizers[i].identityHashCode+">  (a "+data.lockedSynchronizers[i].className+")" ));
 			}
 		}

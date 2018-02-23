@@ -147,9 +147,11 @@ function jsonFormat(txt,compress/*是否为压缩模式*/){/* 格式化JSON源�
 }
 
 /**
-使用方法，jsonFormat(json)这样为格式化代码。
-jsonFormat(json,true)为开启压缩模式。
- */
+ * 格式化显示json串
+ * 使用方法：
+ * jsonFormat(json)这样为格式化代码。
+ * jsonFormat(json,true)为开启压缩模式。
+ **/
 function jsonFormatToHtml(txt,compress/*是否为压缩模式*/){/* 格式化JSON源码(对象转换为JSON文本) */  
     var indentChar = '&nbsp;&nbsp;&nbsp;&nbsp;';   
     if(/^\s*$/.test(txt)){   
@@ -190,6 +192,7 @@ function jsonFormatToHtml(txt,compress/*是否为压缩模式*/){/* 格式化JSO
 }  
 
 /**
+ * 格式化日期，使用方式
  * new Date().format("yyyy-MM-dd hh:mm:ss")
  * new Date().format("yyyy-MM-dd hh:mm:ss:S")
  */
@@ -248,4 +251,35 @@ function bytesToSize(bytes) {
     	i = Math.floor(Math.log(bytes) / Math.log(k));  
     return (bytes / Math.pow(k, i)).toPrecision(3) + ' ' + sizes[i];   
     //toPrecision(3) 后面保留一位小数，如1.0GB  
+}
+
+/**
+ * 对象深度复制
+ * @param obj
+ * @returns
+ */
+function clone(obj){
+	var o,i,j,k;
+	if(typeof(obj)!="object" || obj===null)return obj;
+	if(obj instanceof(Array)){
+		o=[];
+		i=0;j=obj.length;
+		for(;i<j;i++){
+			if(typeof(obj[i])=="object" && obj[i]!=null){
+				o[i]=arguments.callee(obj[i]);
+			}else{
+				o[i]=obj[i];
+			}
+		}
+	}else{
+		o={};
+		for(i in obj){
+			if(typeof(obj[i])=="object" && obj[i]!=null){
+				o[i]=arguments.callee(obj[i]);
+			}else{
+				o[i]=obj[i];
+			}
+		}
+	}
+	return o;
 }

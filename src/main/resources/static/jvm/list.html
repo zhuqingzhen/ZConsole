@@ -7,6 +7,12 @@
 <!--  <meta http-equiv="refresh" content="60" /> -->
 <!-- 最新版本的 Bootstrap 核心 CSS 文件 -->
 <link rel="stylesheet" href="../static/bootstrap/css/bootstrap.min.css" />
+<style type="text/css">
+.deleteBtn{
+	margin-left:16px;
+	border-color:#f00;
+}
+</style>
 </head>
 <body>
 	<div class="container">
@@ -147,29 +153,7 @@
 			tr.append($("<td>").append(jvm.taskNames));
 			tr.append($("<td>").append(jvm.connected ? "正常" : "断开"));
 			var operation = $("<td>");
-			operation.append($("<a>", {
-				class : "btn btn-default deleteBtn",
-				href : "#",
-				role : "button",
-				jvmId : jvm.id,
-				name : jvm.name
-			}).append("del"));
 			if (jvm.connected) {
-				operation.append($("<a>", {
-					class : "btn btn-default goToJmx",
-					href : "#",
-					role : "button",
-					jvmId : jvm.id,
-					name : jvm.name
-				}).append("mbean"));
-				
-				operation.append($("<a>", {
-					class : "btn btn-default memoryBtn",
-					href : "#",
-					role : "button",
-					jvmId : jvm.id,
-					name : jvm.name
-				}).append("memory"));
 				
 				operation.append($("<a>", {
 					class : "btn btn-default infoBtn",
@@ -178,6 +162,22 @@
 					jvmId : jvm.id,
 					name : jvm.name
 				}).append("info"));
+				
+				operation.append($("<a>", {
+					class : "btn btn-default overview",
+					href : "#",
+					role : "button",
+					jvmId : jvm.id,
+					name : jvm.name
+				}).append("overview"));
+				
+				operation.append($("<a>", {
+					class : "btn btn-default memoryBtn",
+					href : "#",
+					role : "button",
+					jvmId : jvm.id,
+					name : jvm.name
+				}).append("memory"));
 				
 				operation.append($("<a>", {
 					class : "btn btn-default threadBtn",
@@ -194,7 +194,23 @@
 					jvmId : jvm.id,
 					name : jvm.name
 				}).append("jstat"));
+				
+				operation.append($("<a>", {
+					class : "btn btn-default goToJmx",
+					href : "#",
+					role : "button",
+					jvmId : jvm.id,
+					name : jvm.name
+				}).append("mbean"));
 			}
+			
+			operation.append($("<a>", {
+				class : "btn btn-default deleteBtn",
+				href : "#",
+				role : "button",
+				jvmId : jvm.id,
+				name : jvm.name
+			}).append("del"));
 			
 			tr.append(operation);
 			container.append(tr);
@@ -239,6 +255,11 @@
 		$(".container").on("click", ".jstatBtn", function() {
 			window.open("jstat.html?jvmId=" + $(this).attr("jvmId"));
 		});
+		
+		$(".container").on("click", ".overview", function() {
+			window.open("overview.html?id=" + $(this).attr("jvmId"));
+		});
+		
 		
 		$(".container").on("click", ".deleteBtn", function() {
 			var self = $(this)

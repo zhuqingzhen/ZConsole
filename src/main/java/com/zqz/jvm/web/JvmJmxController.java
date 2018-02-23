@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.zqz.jvm.bean.Node;
+import com.zqz.jvm.bean.ReponseMessage;
 import com.zqz.jvm.jmx.JMXTypeUtil;
 import com.zqz.jvm.jmx.bean.OperatingSystemInfo;
 import com.zqz.jvm.jmx.bean.RuntimeInfo;
@@ -222,12 +223,33 @@ public class JvmJmxController {
 	
 	@RequestMapping(value="/runtime")
 	public RuntimeInfo getRuntime(long jvmId) throws Exception{
-	    	return jvmJmxService.getRuntime(jvmId);
+	    return jvmJmxService.getRuntime(jvmId);
 	}
 	
 	@RequestMapping(value="/operatingSystem")
 	public OperatingSystemInfo getOperatingSystemInfo(long jvmId) throws Exception{
-	    	return jvmJmxService.getOperatingSystemInfo(jvmId);
+	    return jvmJmxService.getOperatingSystemInfo(jvmId);
 	}
 	
+	
+	@RequestMapping(value="/cpuInfo")
+	public ReponseMessage getJVMCpuInfo(long jvmId) throws Exception{
+	    return new ReponseMessage(ReponseMessage.SUCCESS, jvmJmxService.getJVMCpuInfo(jvmId));
+	}
+	
+	@RequestMapping(value="/threadInfo")
+	public ReponseMessage getJVMThreadInfo(long jvmId) throws Exception{
+		return new ReponseMessage(ReponseMessage.SUCCESS, jvmJmxService.getJVMThreadInfo(jvmId));
+	}
+	
+	/**
+	 * 直接内存使用情况
+	 * @param jvmId
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value="/nioMemory")
+	public ReponseMessage getNioMemoryInfo(long jvmId) throws Exception{
+		return new ReponseMessage(ReponseMessage.SUCCESS, jvmJmxService.getNioMemoryInfo(jvmId));
+	}
 }

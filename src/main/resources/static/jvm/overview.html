@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!--  <meta http-equiv="refresh" content="60" /> -->
+<!-- 最新版本的 Bootstrap 核心 CSS 文件 -->
+<link rel="stylesheet" href="../static/bootstrap/css/bootstrap.min.css" />
+<style type="text/css">
+	.chart{
+		margin-bottom:30px;
+		max-width:950px;
+		min-width:950px;
+		height:400px;
+		display:inline-block;
+		margin-left:30px;
+	}
+	.title{
+		font-size:20px;
+		font-weight:800;
+		margin:16px;
+	}
+	.value{
+		margin:16px;
+	}
+</style>
+</head>
+<body>
+	<div class="container" style="width:100%">
+		<div class="row">
+			<div class="title">
+				CPU:
+				<span class="value">cpu核数：<span id="AvailableProcessors">0</span><span>核</span></span>
+				<span class="value">应用启动时间:<span id="Uptime">0秒</span></span>
+				<span class="value">应用占用cpu时间:<span id="ProcessCpuTime">0</span></span>
+			</div>
+			<div class="title">
+				排查load飙高的问题:如果一分钟内load图表值很高,同时cpu使用率高,线程数逐渐增长,说明是cpu资源不足导致的,如果cpu利用率很低,线程数增加,那么很可能是io问题导致的,可以观察内存图表来辅助判断;
+			</div>
+			<div id = "charts" class="col-xs-12 col-md-12">
+			</div>
+			<div class="title">
+				线程:
+				<span class="value">线程峰值：<span id="PeakThreadCount">0</span></span>
+				<span class="value">当前线程总数：<span id="ThreadCount">0</span></span>
+				<span class="value">当前守护线程数：<span id="DaemonThreadCount">0</span></span>
+				<span class="value">历史线程总数：<span id="TotalStartedThreadCount">0</span></span>
+			</div>
+			<div id = "charts2" class="col-xs-12 col-md-12">
+			</div>
+			<div class="title">
+				直接内存:
+				<span class="value">direct buffer：<span id="direct_MemoryUsed">0</span></span>
+				<span class="value">direct count：<span id="direct_Count">0</span></span>
+				<span class="value">mmap buffer：<span id="mapped_MemoryUsed">0</span></span>
+				<span class="value">mmap count：<span id="mapped_Count">0</span></span>
+			</div>
+			<div id = "charts3" class="col-xs-12 col-md-12">
+			</div>
+		</div>
+	</div>
+
+	<script src="../static/js/jquery-3.2.1.js"></script>
+	<script src="../static/js/highcharts.js"></script>
+	<script src="../static/js/util.js" type="text/javascript"></script>
+	<script type="text/javascript">
+		var jvmId = gerUrlParam("id");
+		$(document).ready(
+				function() {
+					Highcharts.setOptions({
+						global : {
+							useUTC : false
+						}
+					});
+
+					var option = {
+						chart : {
+							zoomType : 'x',
+							renderTo : 'container', //要显示的div
+							type : 'spline',
+							animation : Highcharts.svg
+						},
+						title : {
+							text : '',
+							margin:60,
+							align:"right",
+							style: { "color": "#000", "fontSize": "20px",'fontWeight': 'bold' }
+						},
+						xAxis : {
+							type : 'datetime',
+							tickPixelInterval : 60,
+							minRange:360000
+						},
+						yAxis : [ {
+							title : {
+								text : null
+							},
+							labels:{
+							}
+						} , {
+							title : {
+								text : null
+							},
+							labels:{
+							},
+							opposite: true
+						} ],
+						tooltip : {
+							shared: true,
+							xDateFormat:'%Y-%m-%d %H:%M:%S',
+						},
+						legend : {
+							align : 'top',
+							layout : 'horizontal',
+							verticalAlign : 'top',
+							y : 0,
+							floating : false,
+							borderWidth : 0
+						},
+						exporting : {
+							enabled : true
+						},
+						series : [
+								{   
+									name : 'cpu使用率',
+									tooltip:{},
+									data : (function() { // generate an array of random data                             
+										var data = [], time = (new Date())
+												.getTime(), i;
+										for (i = -360; i <= 0; i++) {
+											data.push({
+												x : time + i * 1000,
+												y : 0
+											});
+										}
+										return data;
+									})()
+								},
+								{
+									name : '当前JVM进程CPU使用率',
+									tooltip:{},
+									//yAxis: 1,
+									data : (function() { // generate an array of random data                             
+										var data = [], time = (new Date())
+												.getTime(), i;
+										for (i = -360; i <= 0; i++) {
+											data.push({
+												x : time + i * 1000,
+												y : 0
+											});
+										}
+										return data;
+									})()
+								}]
+					};
+					var version = null;
+					function initChart(){
+						$.post("/jvm/version.json", {
+							"jvmId" : jvmId
+						}, function(result) {
+							version = result;
+							createChart(result);
+							var getCPUInfo = setTimeout(function() {
+								var arg = arguments.callee;
+								$.post("/jmx/cpuInfo.json", {
+									"jvmId" : jvmId
+								}, function(result) {
+									if (result.code == 1 && result.data != null) {
+										showCpuInfoChartData(result.data);
+									}
+									getCPUInfo = setTimeout(arg, 1000);
+								});
+							}, 1000);
+							
+							var getThreadInfo = setTimeout(function() {
+								var arg = arguments.callee;
+								$.post("/jmx/threadInfo.json", {
+									"jvmId" : jvmId
+								}, function(result) {
+									if (result.code == 1 && result.data != null) {
+										showThreadInfoChartData(result.data);
+									}
+									getThreadInfo = setTimeout(arg, 1000);
+								});
+							}, 1000);
+							
+							var nioMemoryInfo = setTimeout(function() {
+								var arg = arguments.callee;
+								$.post("/jmx/nioMemory.json", {
+									"jvmId" : jvmId
+								}, function(result) {
+									if (result.code == 1 && result.data != null) {
+										showNioInfoChartData(result.data);
+									}
+									nioMemoryInfo = setTimeout(arg, 1000);
+								});
+							}, 1000);
+							
+							
+						});
+					}
+					initChart()
+					var charts={};
+					
+					//是否支持cup使用率
+					var isCpuInfo = false;
+					//是否支持cpuload
+					var isCpuLoad = false;
+					function createChart(data){
+						//cpuInfo
+						if((data.jvm*1)>=1.7){
+							isCpuInfo = true;
+							var cpuInfoOption ={}
+							$.extend(cpuInfoOption,option);
+							//---显示的div的id
+							cpuInfoOption.chart.renderTo = "cpuInfo";
+							//---title
+							cpuInfoOption.title.text ="CPU usage"
+							cpuInfoOption.series[0].name="cpu使用率";
+							cpuInfoOption.series[1].name="当前JVM进程CPU使用率";
+							cpuInfoOption.series[0].tooltip.valueSuffix="%";
+							cpuInfoOption.series[1].tooltip.valueSuffix="%";
+							$("#charts").append($("<div>",{"id":"cpuInfo","class":"chart"}))
+							charts["cpuInfo"] = new Highcharts.Chart(cpuInfoOption);
+						}else{
+							
+						}
+						//cpuLoad
+						if(!((data.operation.toLowerCase()+"").startWith("win")) && (data.jvm*1)>=1.6){
+							isCpuLoad = true;
+							var cpuLoadOption = clone(option);
+							cpuLoadOption.chart.renderTo = "cpuLoad";
+							cpuLoadOption.title.text ="the system load average for the last minute";
+							cpuLoadOption.tooltip.shared=false;
+							cpuLoadOption.series[0].tooltip.valueSuffix="";
+							cpuLoadOption.series.splice(1,1);
+							cpuLoadOption.yAxis.splice(1,1);
+							cpuLoadOption.series[0].name="load";
+							$("#charts").append($("<div>",{"id":"cpuLoad","class":"chart"}))
+							charts["cpuLoad"] = new Highcharts.Chart(cpuLoadOption);
+						}else{
+							alert("Window 操作系统或jdk1.6以下版本不支持查看cpuload值");
+						}
+						//线程cpu信息；
+						var threadsCpuOption = clone(option);
+						threadsCpuOption.chart.renderTo = "threadsCpuInfo";
+						threadsCpuOption.title.text ="threads cpu useage";
+						threadsCpuOption.series[0].name="线程CPU总时间";
+						threadsCpuOption.series[1].name="线程用户态CPU时间";
+						threadsCpuOption.series[0].tooltip.valueSuffix=" ns";
+						threadsCpuOption.series[1].tooltip.valueSuffix=" ns";
+						$("#charts2").append($("<div>",{"id":"threadsCpuInfo","class":"chart"}))
+						charts["threadsCpuInfo"] = new Highcharts.Chart(threadsCpuOption);
+						
+						//线程数量
+						var threadsNumberOption = clone(option);
+						threadsNumberOption.chart.renderTo = "threadsNumberInfo";
+						threadsNumberOption.title.text ="threads number";
+						threadsNumberOption.series[0].name="线程总数";
+						threadsNumberOption.series[1].name="守护线程数";
+						threadsNumberOption.series[0].tooltip.valueSuffix="";
+						threadsNumberOption.series[1].tooltip.valueSuffix="";
+						/* threadsNumberOption.tooltip.formatter=function() {
+							return '<b>'
+							+ this.series.name
+							+ '</b><br/>'
+							+ Highcharts.dateFormat(
+									'%Y-%m-%d %H:%M:%S', this.x)
+							+ '<br/>'
+							+ this.y ;
+						}; */
+						$("#charts2").append($("<div>",{"id":"threadsNumberInfo","class":"chart"}))
+						charts["threadsNumberInfo"] = new Highcharts.Chart(threadsNumberOption);
+						
+						
+						//nio -- direct
+						var nioDirectMemory = clone(option);
+						nioDirectMemory.chart.renderTo = "nioDirectMemoryInfo";
+						nioDirectMemory.title.text = "direct buffer";
+						nioDirectMemory.series[0].name = "direct used";
+						nioDirectMemory.series[1].name = "direct count";
+						nioDirectMemory.series[1].yAxis = 1;
+						nioDirectMemory.series[0].tooltip.valueSuffix = " M";
+						nioDirectMemory.series[1].tooltip.valueSuffix = "";
+						/* threadsNumberOption.tooltip.formatter=function() {
+							return '<b>'
+							+ this.series.name
+							+ '</b><br/>'
+							+ Highcharts.dateFormat(
+									'%Y-%m-%d %H:%M:%S', this.x)
+							+ '<br/>'
+							+ this.y ;
+						}; */
+						$("#charts3").append($("<div>",{"id":"nioDirectMemoryInfo","class":"chart"}))
+						charts["nioDirectMemoryInfo"] = new Highcharts.Chart(nioDirectMemory);
+						
+						//nio -- mmap
+						var nioMmapMemoryInfo = clone(option);
+						nioMmapMemoryInfo.chart.renderTo = "nioMmapMemoryInfo";
+						nioMmapMemoryInfo.title.text = "mmap buffer";
+						nioMmapMemoryInfo.series[0].name = "mmap used";
+						nioMmapMemoryInfo.series[1].name = "mmap count";
+						nioMmapMemoryInfo.series[1].yAxis = 1;
+						nioMmapMemoryInfo.yAxis[1].labels.format="{value}M"
+						nioMmapMemoryInfo.series[0].tooltip.valueSuffix = " M";
+						nioMmapMemoryInfo.series[1].tooltip.valueSuffix = "";
+						/* threadsNumberOption.tooltip.formatter=function() {
+							return '<b>'
+							+ this.series.name
+							+ '</b><br/>'
+							+ Highcharts.dateFormat(
+									'%Y-%m-%d %H:%M:%S', this.x)
+							+ '<br/>'
+							+ this.y ;
+						}; */
+						$("#charts3").append($("<div>",{"id":"nioMmapMemoryInfo","class":"chart"}))
+						charts["nioMmapMemoryInfo"] = new Highcharts.Chart(nioMmapMemoryInfo);
+					}
+					
+					var AvailableProcessors = $("#AvailableProcessors");
+					var Uptime = $("#Uptime");
+					var ProcessCpuTime = $("#ProcessCpuTime");
+					
+					function showCpuInfoChartData(data){
+						var x = (new Date()).getTime();
+						if(data!=null){
+							if(isCpuInfo){
+								charts["cpuInfo"].series[0].addPoint([x,(data.SystemCpuLoad*100).toFixed(2)*1],true,true);
+								charts["cpuInfo"].series[1].addPoint([x,(data.ProcessCpuLoad*100).toFixed(2)*1],true,true);
+							}
+							if(isCpuLoad){
+								charts["cpuLoad"].series[0].addPoint([x,(data.SystemLoadAverage*1)],true,true);
+							}
+							AvailableProcessors.empty().append(data.AvailableProcessors);
+							Uptime.empty().append(formatDuring(data.Uptime));
+							ProcessCpuTime.empty().append(formatDuring(data.ProcessCpuTime/1000000));
+						}
+					}
+					
+					var PeakThreadCount = $("#PeakThreadCount");
+					var ThreadCount = $("#ThreadCount");
+					var DaemonThreadCount = $("#DaemonThreadCount");
+					var TotalStartedThreadCount = $("#TotalStartedThreadCount");
+					
+					
+					function showThreadInfoChartData(data){
+						var x = (new Date()).getTime();
+						if(data!=null){
+							charts["threadsCpuInfo"].series[0].addPoint([x,data.CurrentThreadCpuTime],true,true);
+							charts["threadsCpuInfo"].series[1].addPoint([x,data.CurrentThreadUserTime],true,true);
+							charts["threadsNumberInfo"].series[0].addPoint([x,data.ThreadCount],true,true);
+							charts["threadsNumberInfo"].series[1].addPoint([x,data.DaemonThreadCount],true,true);
+							PeakThreadCount.empty().append(data.PeakThreadCount);
+							ThreadCount.empty().append(data.ThreadCount);
+							DaemonThreadCount.empty().append(data.DaemonThreadCount);
+							TotalStartedThreadCount.empty().append(data.TotalStartedThreadCount);
+						}
+					}
+					
+					var direct_MemoryUsed = $("#direct_MemoryUsed");
+					var direct_Count = $("#direct_Count");
+					var mapped_MemoryUsed = $("#mapped_MemoryUsed");
+					var mapped_Count = $("#mapped_Count");
+					function showNioInfoChartData(data){
+						var x = (new Date()).getTime();
+						if(data!=null){
+							charts["nioDirectMemoryInfo"].series[0].addPoint([x,(data.direct_MemoryUsed/1024/1024).toFixed(2)*1],true,true);
+							charts["nioDirectMemoryInfo"].series[1].addPoint([x,data.direct_Count],true,true);
+							charts["nioMmapMemoryInfo"].series[0].addPoint([x,(data.mapped_MemoryUsed/1024/1024).toFixed(2)*1],true,true);
+							charts["nioMmapMemoryInfo"].series[1].addPoint([x,data.mapped_Count],true,true);
+							
+							direct_MemoryUsed.empty().append(bytesToSize(data.direct_MemoryUsed));
+							direct_Count.empty().append(data.direct_Count);
+							mapped_MemoryUsed.empty().append(bytesToSize(data.mapped_MemoryUsed));
+							mapped_Count.empty().append(data.mapped_Count);
+						}
+					}
+					
+				});
+		
+		//监控gc
+	</script>
+</body>
+</html>

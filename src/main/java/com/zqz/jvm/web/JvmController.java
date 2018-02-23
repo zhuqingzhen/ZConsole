@@ -2,6 +2,7 @@ package com.zqz.jvm.web;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,6 +58,11 @@ public class JvmController {
     @RequestMapping(value="/localvm/add")
     public boolean addLocalVM(long jvmId) throws IOException, AgentLoadException, AgentInitializationException{
     	return jvmService.addLocalVM(jvmId);
+    }
+    
+    @RequestMapping(value="/version")
+    public Map<String,String> getVersion(long jvmId) throws Exception{
+    	return jvmService.getVersion(jvmId);
     }
     
   
