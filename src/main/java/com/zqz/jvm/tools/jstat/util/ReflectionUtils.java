@@ -5,20 +5,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.aop.framework.AdvisedSupport;
 import org.springframework.aop.framework.AopProxy;
 import org.springframework.aop.support.AopUtils;
-import sun.jvmstat.monitor.MonitoredVm;
-import sun.tools.jstat.ExpressionExecuter;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
- * 方法类
+ * 反射工具类
  *
- * @author syh
+ * @author sangjian
  */
-
 public class ReflectionUtils {
     private static final Logger logger = LoggerFactory.getLogger(ReflectionUtils.class);
 
@@ -177,9 +173,9 @@ public class ReflectionUtils {
 
     /**
      * 创建对象
-     * @param className
-     * @param parameterTypes
-     * @param values
+     * @param className : 需要创建对象的class名称
+     * @param parameterTypes : 参数类型
+     * @param values : 参数对象
      * @return
      */
     public static Object newInstance(String className, Class<?>[] parameterTypes, Object[] values){
