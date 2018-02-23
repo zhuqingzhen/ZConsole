@@ -125,7 +125,7 @@ public class JStatWriter {
                 out.println("data: " + formatter.getHeader() +"\n");
             }
             System.out.println(formatter.getRow());
-            String data = JSONUtils.stringWithSpace2JSONArray(formatter.getRow()).toString();
+            String data = formatter.getRow();
             out.println("data: " + data +"\n");
             out.flush();
             // check if we've hit the specified sample count

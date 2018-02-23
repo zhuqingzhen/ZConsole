@@ -5,6 +5,7 @@ import com.zqz.jvm.jmx.JVMManager;
 import com.zqz.jvm.jmx.bean.GCInfo;
 import com.zqz.jvm.jmx.bean.GCMemoryInfo;
 import com.zqz.jvm.jmx.bean.JstatGCInfo;
+import com.zqz.jvm.tools.jstat.JSONOptionOutputFormatter;
 import com.zqz.jvm.tools.jstat.JStatWriter;
 import org.springframework.stereotype.Service;
 import sun.jvmstat.monitor.*;
@@ -167,7 +168,7 @@ public class JvmJstatService {
 
         if (arguments.isSpecialOption()) {
             OptionFormat format = arguments.optionFormat();
-            formatter = new OptionOutputFormatter(monitoredVm, format);
+            formatter = new JSONOptionOutputFormatter(monitoredVm, format);
         } else {
             List<Monitor> logged = monitoredVm.findByPattern(arguments.counterNames());
             Collections.sort(logged, arguments.comparator());
