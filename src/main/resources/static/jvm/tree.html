@@ -7,6 +7,29 @@
 <link rel="stylesheet" href="../static/bootstrap/css/bootstrap.min.css" />
 <link rel="stylesheet" href="../static/zTree_v3/css//demo.css" type="text/css">
 <link rel="stylesheet" href="../static/zTree_v3/css/zTreeStyle/zTreeStyle.css" type="text/css">
+<style type="text/css">
+.title{
+	font-size:16px;font-weight:800;color:#5d00c0;
+}
+.field{
+	font-size:16px;
+	line-height:20px;
+	margin:8px;
+}
+.field_type{
+	color:#7f007f;
+	margin:8px;
+}
+.field_name{
+	color:#5d00c0;
+	margin:8px;
+	font-weight:800;
+}
+.field_value{
+	color:#2a00ff;
+	margin:8px;
+}
+</style>
 </head>
 <body>
 	<div class="container">
@@ -69,7 +92,7 @@
 							console.log(JSON.stringify(result));
 							info.append($("<div>").append("~~~~~~~~~~~~属性值"));
 							for(var i = 0 ;i < data.length ;i++){
-								info.append($("<div>").append(data[i].type+" "+data[i].name+"="+jsonFormatToHtml(JSON.stringify(result[data[i].name]))));
+								info.append($("<div>",{"class":"field"}).append("<span class=\"field_type\">"+data[i].type+"</span> <span class=\"field_name\">"+data[i].name+"</span>=<span class=\"field_value\">"+jsonFormatToHtml(JSON.stringify(result[data[i].name]))+"</span>"));
 							}
 						});
 					}else if(treeNode.type == 3){//MBean--方法 ，显示全部方法
@@ -177,9 +200,13 @@
    		function showMBeanInfo(objectName){
    			var data = jmxInfoCache[objectName];
    			info.empty();
-   			info.append($("<div>").append("objectName:").append(objectName));
-   			info.append($("<div>").append("className:").append(data.className));
-   			info.append($("<div>").append("description:").append(data.description));
+   			info.append($("<div>").append("<span class='field_name'>objectName：</span>").append("<span class=\"field_value\">"+objectName+"</span>"));
+   			info.append($("<div>").append("<span class='field_name'>className：</span>").append("<span class=\"field_value\">"+data.className+"</span>"));
+   			info.append($("<div>").append("<span class='field_name'>description：</span>").append("<span class=\"field_value\">"+data.description+"</span>"));
+   			info.append($("<div>").append("<span class='field_name'>descriptor.fields：</span>"));
+   			for(var i in data.descriptor.fields){
+   				info.append($("<div>",{ "class":"field_value"}).append(data.descriptor.fields[i]));
+   			}
    		}
    		
    	   /**
