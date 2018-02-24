@@ -252,4 +252,15 @@ public class JvmJmxController {
 	public ReponseMessage getNioMemoryInfo(long jvmId) throws Exception{
 		return new ReponseMessage(ReponseMessage.SUCCESS, jvmJmxService.getNioMemoryInfo(jvmId));
 	}
+	
+	/**
+	 * hotsport 虚拟机诊断参数
+	 * @param jvmId
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value="/hotSpotDiagnostic")
+	public ReponseMessage getHotSpotDiagnostic(long jvmId) throws Exception{
+		return new ReponseMessage(ReponseMessage.SUCCESS, jvmJmxService.getHotSpotDiagnostic(jvmId));
+	}
 }

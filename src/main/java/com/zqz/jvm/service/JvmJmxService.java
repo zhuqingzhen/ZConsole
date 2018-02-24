@@ -6,10 +6,14 @@ import java.util.Map;
 import javax.management.MBeanInfo;
 import javax.management.ObjectName;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
+import com.alibaba.fastjson.JSON;
 import com.zqz.jvm.bean.Node;
+import com.zqz.jvm.jmx.JMXTypeUtil;
 import com.zqz.jvm.jmx.JVM;
 import com.zqz.jvm.jmx.JVMManager;
 import com.zqz.jvm.jmx.MBeanUtil;
@@ -19,11 +23,15 @@ import com.zqz.jvm.jmx.notification.NotificationManager;
 
 @Service
 public class JvmJmxService {
+	
+	private static Logger logger = LoggerFactory.getLogger(JvmJmxService.class);
+	
 	ObjectName objectName_Runtime = null;
 	ObjectName objectName_OperatingSystem = null;
 	ObjectName objectName_thread = null;
 	ObjectName objectName_BufferPool_direct = null;
 	ObjectName objectName_BufferPool_mapped = null;
+	ObjectName objectName_HotSpotDiagnostic = null;
 	/**
 	 * 获取jvm运行时cpu使用状况
 	 * @param jvmId
@@ -168,7 +176,7 @@ public class JvmJmxService {
 	}
 
 	/**
-	 * 获取jmx数
+	 * 获取jmx tree
 	 * 
 	 * @param jvmId
 	 * @return
@@ -240,7 +248,7 @@ public class JvmJmxService {
 	}
 
 	/**
-	 * 获取JVM
+	 * 获取JVM运行时信息
 	 * 
 	 * @param jvmId
 	 * @return
@@ -266,6 +274,128 @@ public class JvmJmxService {
 			return null;
 		}
 		return jvm.getOperatingSystemInfo();
+	}
+	
+	/**
+	 * hotsport 虚拟机诊断参数
+	 * @param jvmId
+	 * @return
+	 * @throws Exception
+	 */
+	public Object[] getHotSpotDiagnostic(long jvmId) throws Exception{
+		JVM jvm = JVMManager.get(jvmId);
+		if (jvm == null) {
+			return null;
+		}
+		if(objectName_HotSpotDiagnostic==null)
+			objectName_HotSpotDiagnostic = new ObjectName("com.sun.management:type=HotSpotDiagnostic");
+		return  (Object[])JMXTypeUtil.getResult( MBeanUtil.getObjectNameValue(objectName_HotSpotDiagnostic, "DiagnosticOptions", jvm));
+	}
+	
+	
+	/**
+	 * 验证当前jvm潜在的问题；
+	 */
+	public Map<String,Object> checkJVM(long jvmId) {
+		Map<String,Object> result = new HashMap<String,Object>();
+		JVM jvm = JVMManager.get(jvmId);
+		if (jvm == null) {
+			return null;
+		}
+		try {
+			result.put("HeapDumpOnOutOfMemoryError", checkHeapDumpOnOutOfMemoryError(jvm));
+		} catch (Exception e) {
+			logger.error("check HeapDumpOnOutOfMemoryError status error", e);
+		}
+		try {
+			result.put("PrintGC",checkGcLogStatus(jvm));
+		} catch (Exception e) {
+			logger.error("check gclog status error", e);
+		}
+
+		try {
+			result.put("DisableExplicitGC", checkDisableExplicitGC(jvm));
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			logger.error("check DisableExplicitGC status error", e);
+		}
+
+		try {
+			checkGCState(jvm);
+		} catch (Exception e) {
+			logger.error("check gc status error", e);
+		}
+		return result;
+	}
+	
+
+	/**
+	 * statusDisableExplicitGC statusForHeapDumpOnOutOfMemoryError
+	 * statusForGCLog 检查系统异常时,是否需要dump堆
+	 * 
+	 * @return
+	 * @throws Exception
+	 */
+	private Boolean checkHeapDumpOnOutOfMemoryError(JVM jvm) throws Exception {
+		Map<String, Object> result = MBeanUtil.getHotSpotVmOption(jvm, "HeapDumpOnOutOfMemoryError");
+		if (result != null && result.size() == 4) {
+			return  Boolean.valueOf((String) result.get("value"));
+		}
+		logger.warn(JSON.toJSONString(result));
+		return null;
+	}
+
+	/**
+	 * 检查gc日志是否打开
+	 * 
+	 * @return
+	 * @throws Exception
+	 */
+	private Boolean checkGcLogStatus(JVM jvm) throws Exception {
+		Map<String, Object> result = MBeanUtil.getHotSpotVmOption(jvm, "PrintGC");
+		if (result != null && result.size() == 4) {
+			return  Boolean.valueOf((String) result.get("value"));
+		}
+		logger.warn(JSON.toJSONString(result));
+		return null;
+	}
+	
+	/**
+	 * 检查系统异常时,是否需要dump堆
+	 * 
+	 * @return
+	 * @throws Exception
+	 */
+	private Boolean checkDisableExplicitGC(JVM jvm) throws Exception {
+		Map<String, Object> result = MBeanUtil.getHotSpotVmOption(jvm, "DisableExplicitGC");
+		if (result != null && result.size() == 4) {
+			return Boolean.valueOf((String) result.get("value"));
+		}
+		logger.warn(JSON.toJSONString(result));
+		return null;
+	}
+
+	/**
+	 * 检查gc状态
+	 * @throws Exception
+	 */
+	private void checkGCState(JVM jvm) throws Exception {
+		if(objectName_Runtime==null)
+			objectName_Runtime = new ObjectName("java.lang:type=Runtime");
+		long uptime = (Long) MBeanUtil.getObjectNameValue(objectName_Runtime, "Uptime", jvm);
+		ObjectName  ygcObjectName = jvm.getYGCName();
+		long ygcCollectionTime = (Long) MBeanUtil.getObjectNameValue(ygcObjectName, "CollectionTime", jvm);
+		long ygcCollectionCount = (Long) MBeanUtil.getObjectNameValue(ygcObjectName, "CollectionCount", jvm);
+		long ygcWasteTimeAVG = ygcCollectionTime / ygcCollectionCount;
+		long ygcFrequency = uptime / ygcCollectionCount;
+
+		// 获取FullGc类型
+		ObjectName  fgcObjectName =	jvm.getFullGCName();
+		long fullCollectionTime = (Long) MBeanUtil.getObjectNameValue(fgcObjectName, "CollectionTime", jvm);
+		long fullCollectionCount = (Long) MBeanUtil.getObjectNameValue(fgcObjectName, "CollectionCount", jvm);
+		long fullWasteTimeAVG = fullCollectionTime / fullCollectionCount;
+		long fullFrequency = uptime / fullCollectionCount;
+
 	}
 
 }

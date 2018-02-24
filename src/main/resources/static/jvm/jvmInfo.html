@@ -104,7 +104,7 @@ function showRuntime(){
 				.append($("<td>").append(result.systemProperties["user.language"]+"_"+result.systemProperties["user.country"])));
 		runtime.append($("<tr>")
 			    .append($("<td>").append("jvm版本"))
-			    .append($("<td>").append(result.vmName+" "+result.specVersion+" "+result.vmVersion
+			    .append($("<td>").append(result.vmName+"_"+result.specVersion+"_"+result.vmVersion
 				)));
 		runtime.append($("<tr>")
 			    .append($("<td>").append("启动时间"))
@@ -114,6 +114,7 @@ function showRuntime(){
 			    .append($("<td>").append("运行时间"))
 			    .append($("<td>").append(formatDuring(result.uptime)
 				)));
+		
 		runtime.append($("<tr>")
 			    .append($("<td>").append("启动参数"))
 			    .append($("<td>").append((function() {
@@ -125,6 +126,10 @@ function showRuntime(){
 					return container;
 					})()
 				)));
+		var dumpPath=$("<div>");
+		runtime.append($("<tr>")
+			    .append($("<td>").append("堆dump路径"))
+			    .append($("<td>").append(dumpPath)));
 		runtime.append($("<tr>")
 			    .append($("<td>").append("classpath"))
 			    .append($("<td>").append(result.classPath
@@ -148,6 +153,29 @@ function showRuntime(){
 					return container;
 					})()
 				)));
+		
+		if(result.vmName.indexOf("HotSpot")>-1){
+			var hotSpotDiagnosticTitle = $("<td>");
+			var hotSpotDiagnosticValue = $("<td>");
+			runtime.append($("<tr>").append(hotSpotDiagnosticTitle).append(hotSpotDiagnosticValue));
+			$.post("/jmx//hotSpotDiagnostic.json?jvmId="+jvmId, {}, function(result1) {
+				if (result1.code == 1 && result1.data != null) {
+					console.log(result1.data);
+					hotSpotDiagnosticTitle.append("诊断参数");
+					for(var i in result1.data){
+						if(result1.data[i].name=="HeapDumpPath"){
+							if(result1.data[i].origin=="DEFAULT"){
+								result1.data[i].value = result.systemProperties["user.dir"]+"/java_pid"+result.pid+".hprof[.index]";
+							}
+							dumpPath.append(result1.data[i].value);
+						}
+						hotSpotDiagnosticValue.append(
+							$("<div>").append(result1.data[i].name).append("=").append(result1.data[i].value)
+						);
+					}
+				}
+			});
+		}
 	});
 }
 

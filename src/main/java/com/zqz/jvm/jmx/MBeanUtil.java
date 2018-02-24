@@ -101,16 +101,20 @@ public class MBeanUtil {
 	public static Object execute(String objectName, String methodName, Object[] params, String[] signature, JVM jvm)
 			throws Exception {
 		try {
-			Object[] params2 = new Object[params.length];
-			for (int i = 0; i < signature.length; i++) {
-				// 2018-02-04 21:58
-				// 增加参数数据类型转换,解决调用方法传参类型都是字符串的问题,添加参数long与boolean类型转换
-				if (signature[i].equals("long")) {
-					params2[i] = Long.parseLong(String.valueOf(params[i]));
-				} else if (signature[i].equals("boolean")) {
-					params2[i] = Boolean.parseBoolean(String.valueOf(params[i]));
-				} else {
-					params2[i] = params[i];
+			Object[] params2 = null;
+			if(params!=null)
+				params2 = new Object[params.length];
+			if(params2!=null && params.length>0){
+				for (int i = 0; i < signature.length; i++) {
+					// 2018-02-04 21:58
+					// 增加参数数据类型转换,解决调用方法传参类型都是字符串的问题,添加参数long与boolean类型转换
+					if (signature[i].equals("long")) {
+						params2[i] = Long.parseLong(String.valueOf(params[i]));
+					} else if (signature[i].equals("boolean")) {
+						params2[i] = Boolean.parseBoolean(String.valueOf(params[i]));
+					} else {
+						params2[i] = params[i];
+					}
 				}
 			}
 			return JMXTypeUtil.getResult(jvm.getClient().getMbsc().invoke(ObjectName.getInstance(objectName),

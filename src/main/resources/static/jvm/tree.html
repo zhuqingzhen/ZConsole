@@ -68,7 +68,7 @@
 					if(treeNode.type==1){//获取Mbean节点的信息，包括其属性，方法和通知;
 						if(treeNode.children==null){
 							$.post("/jmx/tree/nodeInfo.json", {"jvmId":jvmId,"objectName":treeNode.objectName}, function(result) {
-								console.log(JSON.stringify(result));
+								//console.log(JSON.stringify(result));
 								result.attributes.sort(treesortPolice);
 								result.operations.sort(treesortPolice);
 								result.notifications.sort(treesortPolice);
@@ -89,7 +89,7 @@
 						}
 						params.attrNames=attrNames
 						$.post("/jmx/tree/attribute/value", params, function(result) {
-							console.log(JSON.stringify(result));
+							//console.log(JSON.stringify(result));
 							info.append($("<div>").append("~~~~~~~~~~~~属性值"));
 							for(var i = 0 ;i < data.length ;i++){
 								info.append($("<div>",{"class":"field"}).append("<span class=\"field_type\">"+data[i].type+"</span> <span class=\"field_name\">"+data[i].name+"</span>=<span class=\"field_value\">"+jsonFormatToHtml(JSON.stringify(result[data[i].name]))+"</span>"));
@@ -262,7 +262,7 @@
    			var objectName = $(this).attr("objectName");
    			var methodName = $(this).text();
    			var data = jmxInfoCache[objectName].operations;
-   			console.log($(this).attr("arrIndex"));
+   			//console.log($(this).attr("arrIndex"));
 			var itemData = data[parseInt($(this).attr("arrIndex"))];
 			var params={"objectName":objectName,"jvmId":jvmId,"methodName":methodName};
 			var methodParam=[];
