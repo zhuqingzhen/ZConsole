@@ -1,0 +1,177 @@
+
+<!-- saved from url=(0026)https://btrace.org/btrace/ -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<title>BTrace script generator</title>
+<script type="text/javascript">
+  APPLICATION_LIBRARY_PATH = "jsapp/";
+</script>
+<script type="text/javascript">
+document.write('<script type="text/javascript" src="');
+document.write(APPLICATION_LIBRARY_PATH);
+document.write('cn.aprilsoft.jsapp.core.js">' + '</' + 'script>');
+</script><script type="text/javascript" src="./BTraceScriptGenerator/cn.aprilsoft.jsapp.core.js"></script>
+<script type="text/javascript">
+  SetIncludePath(APPLICATION_LIBRARY_PATH);
+</script>
+<script type="text/javascript">
+  Include("cn.aprilsoft.jsapp.common.StringUtil.js");
+  Include("cn.aprilsoft.jsapp.system.System.js");
+  Include("cn.aprilsoft.jsapp.common.ShortCommand.js");
+</script><script type="text/javascript" charset="UTF-8" src="./BTraceScriptGenerator/cn.aprilsoft.jsapp.common.StringUtil.js"></script>
+<script type="text/javascript" charset="UTF-8" src="./BTraceScriptGenerator/cn.aprilsoft.jsapp.system.System.js"></script>
+<script type="text/javascript" charset="UTF-8" src="./BTraceScriptGenerator/cn.aprilsoft.jsapp.common.ShortCommand.js"></script>
+
+<script type="text/javascript">
+Import("cn.aprilsoft.jsapp.common.StringUtil")
+
+function setT_MethodInit() {
+  $value("t_method", "<init>");
+}
+
+function setT_ClassSubClass() {
+  var t_class = StringUtil.trim($value("t_class"));
+  if (StringUtil.isEmpty(t_class)) {
+    return;
+  }
+  if (StringUtil.startWith(t_class, "+")) {
+    $value("t_class", t_class.substring(1));
+  } else {
+    $value("t_class", "+" + t_class);
+  }
+}
+
+function doGenerateBtraceScript() {
+  var hasError = false;
+  $("t_class").style.backgroundColor = "";
+  $("t_method").style.backgroundColor = "";
+  var t_class = StringUtil.trim($value("t_class"))
+  var t_method = StringUtil.trim($value("t_method"))
+  if (StringUtil.isEmpty(t_class)) {
+    hasError = true;
+    $("t_class").style.backgroundColor = "red";
+  }if (StringUtil.isEmpty(t_method)) {
+    hasError = true;
+    $("t_method").style.backgroundColor = "red";
+  }
+  if (hasError) {
+    return;
+  }
+  var m_index = 0;
+  var buf = [];
+  buf.push("package com.sun.btrace.sample;");
+  buf.push("");
+  buf.push("import com.sun.btrace.AnyType;");
+  buf.push("import com.sun.btrace.annotations.*;");
+  buf.push("import static com.sun.btrace.BTraceUtils.*;");
+  buf.push("");
+  buf.push("@BTrace");
+  buf.push("public class Trace {");
+  buf.push("");
+  var params = [];
+  if ($isChecked("i_methodstart")) {
+    buf.push("    @OnMethod(clazz = \"" + t_class + "\", "
+                         + "method = \"" + t_method + "\")");
+    params.push("AnyType[] args");
+  }
+  if ($isChecked("i_methodend")) {
+    buf.push("    @OnMethod(clazz = \"" + t_class + "\", "
+                         + "method = \"" + t_method + "\", "
+                         + "location = @Location(Kind.RETURN))");
+    params.push("@Return Object ret");
+  }
+  if ($isChecked("i_methodcall")) {
+  	if (StringUtil.startWith(t_class, "+")) {
+  	  t_class = StringUtil.trim(t_class.substring(1));
+  	}
+    buf.push("    @OnMethod(clazz = \"/.*/\", "
+                         + "method = \"/.*/\", "
+                         + "location = @Location(value = Kind.CALL, "
+                                              + "clazz = \"" + t_class + "\", "
+                                              + "method = \"" + t_method + "\"))");
+    params.push("@ProbeClassName String clazz");
+    params.push("@ProbeMethodName String method");
+    params.push("@TargetInstance Object instance");
+  }
+  buf.push("    public static void " + ("m" + (m_index++)) + "(" + params.join(", ") + ") {");
+  if ($isChecked("o_split")) {
+    buf.push("        println(\"\\n==== " + t_class + "#" + t_method + " ====\");");
+  }
+  if ($isChecked("i_methodstart") && $isChecked("o_printargs")) {
+    buf.push("        printArray(args);");
+  }
+  if ($isChecked("i_methodend") && $isChecked("o_printret")) {
+    buf.push("        println(str(ret));");
+  }
+  if ($isChecked("o_stacktrace")) {
+    buf.push("        jstack();");
+  }
+  buf.push("    }");
+  buf.push("}");
+  //$value("s_code", buf.join("\n"));
+  editor.setValue(buf.join("\n"));
+}
+</script>
+</head>
+<body style="margin: 0px 0px 0px 0px; padding: 0px 0px 0px 0px;">
+  <table style="width:100%;" border="1">
+    <tbody><tr>
+      <td style="width:120px;">类名:</td>
+      <td>
+        <input id="t_class" type="text" style="width:600px;" value="+java.lang.ClassLoader">
+        <button onclick="setT_ClassSubClass();">+ subclass</button>
+      </td>
+    </tr>
+    <tr>
+      <td>方法名:</td>
+      <td>
+        <input id="t_method" type="text" style="width:600px;" value="defineClass">
+        <button onclick="setT_MethodInit();">&lt;init&gt;</button>
+      </td>
+    </tr>
+    <tr>
+      <td>调用点:</td>
+      <td>
+        <label><input id="i_methodstart" type="radio" name="invokepoint" checked="checked">函数调用开始</label>
+        <label><input id="i_methodend" type="radio" name="invokepoint">函数调用结束</label>
+        <label><input id="i_methodcall" type="radio" name="invokepoint">调用此函数位置 类、函数过滤</label>
+      </td>
+    </tr>
+    <tr>
+      <td>调用点:</td>
+      <td>
+        <label><input id="o_split" type="checkbox" checked="checked">分割线</label><br>
+        <label><input id="o_printargs" type="checkbox" checked="checked">打印参数</label><br>
+        <label><input id="o_printret" type="checkbox" checked="checked">打印返回值</label><br>
+        <label><input id="o_stacktrace" type="checkbox" checked="checked">打印StackTrace</label>
+      </td>
+    </tr>
+    <tr>
+      <td colspan="2" align="right">
+        <button style="height:30px;width:200px;background-color:red;" onclick="doGenerateBtraceScript()">
+          <b>Generate!</b>
+        </button>
+      </td>
+    </tr>
+    <tr>
+      <td colspan="2" style="font-size:12px;">
+        <textarea id="s_code" name="s_code" style="height: 400px; font-family: &quot;courier new&quot;; font-size: 16px; display: none;"></textarea><div class="CodeMirror cm-s-default"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 4px; left: 33px;"><textarea autocorrect="off" autocapitalize="off" tabindex="0" style="position: absolute; padding: 0px; width: 1000px; height: 1em; outline: none;"></textarea></div><div class="CodeMirror-hscrollbar" style="left: 29px;"><div style="height: 1px;"></div></div><div class="CodeMirror-vscrollbar"><div style="width: 1px;"></div></div><div class="CodeMirror-scrollbar-filler"></div><div class="CodeMirror-scroll" tabindex="-1"><div style="position: relative; min-height: 100%;"><div class="CodeMirror-sizer" style="min-width: 49px; margin-left: 29px; min-height: 20px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines"><div style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre><span>&nbsp;</span></pre><div class="CodeMirror-linenumber CodeMirror-gutter-elt"><div>1</div></div></div><div style="position: relative; z-index: 1; display: none;"></div><div style=""><div style="position: relative;"><div style="position: absolute; left: -29px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 20px;">1</div></div><pre>&nbsp;</pre></div></div><div class="CodeMirror-cursor" style="left: 4px; top: 0px; height: 12px;">&nbsp;</div><div class="CodeMirror-cursor CodeMirror-secondarycursor" style="display: none;">&nbsp;</div></div></div></div></div><div style="position: absolute; height: 30px; top: 20px;">&nbsp;</div><div class="CodeMirror-gutters"><div class="CodeMirror-gutter CodeMirror-linenumbers" style="width: 28px;"></div></div></div></div></div>
+        <link rel="stylesheet" href="./BTraceScriptGenerator/codemirror.css">
+        <script src="./BTraceScriptGenerator/codemirror.js"></script>
+        <script src="./BTraceScriptGenerator/matchbrackets.js"></script>
+        <script src="./BTraceScriptGenerator/clike.js"></script>
+        <link rel="stylesheet" href="./BTraceScriptGenerator/docs.css">
+        <script type="text/javascript">
+        var editor = CodeMirror.fromTextArea(document.getElementById("s_code"), {
+          textWrapping: true,
+          lineNumbers: true,
+          matchBrackets: true,
+          mode: "text/x-java"
+        });
+        </script>
+      </td>
+    </tr>
+  </tbody></table>
+
+
+</body></html>
