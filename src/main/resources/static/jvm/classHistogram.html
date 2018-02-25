@@ -15,8 +15,11 @@ td{word-break: break-all; word-wrap:break-word;}
 <body>
 	<div class="container">
 		<div class="row">
+			<div>
+				当出现内存泄露或内存对象占用过多内存问题的时候，可以通过此功能，查看哪些对象占用了内存；
+			</div>
 			<div style="color:#f00;">
-				注意：该操作相当于执行jmap -histo:live [pid]命令，会导致jvm停顿，对线上环境延迟要求高的应用请自行评估影响；
+				注意：该操作相当于执行jmap -histo:live [pid]命令，会引起fullgc，导致jvm停顿，对线上环境延迟要求高的应用请自行评估影响；
 			</div>
 			<a class="btn btn-default" href="#" role="button" id="gcClassHistogram">导出</a>
 			<div>
@@ -37,7 +40,8 @@ td{word-break: break-all; word-wrap:break-word;}
 	var isClick = false;
 	$("#gcClassHistogram").click(function(){
 		if(isClick){
-			alert("正在导出，请不要重复点击！");
+			alert("正在导出，请不要重复点击！对于较大的堆，导出时间较长，请耐心等待；");
+			return;
 		}
 		isClick = true;
 		$.post("/jmx/gcClassHistogram.json?jvmId="+jvmId, {}, function(result) {
