@@ -263,4 +263,15 @@ public class JvmJmxController {
 	public ReponseMessage getHotSpotDiagnostic(long jvmId) throws Exception{
 		return new ReponseMessage(ReponseMessage.SUCCESS, jvmJmxService.getHotSpotDiagnostic(jvmId));
 	}
+	
+	/**
+	 * 获取类直方图；
+	 * @param jvmId
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value="/gcClassHistogram")
+	public ReponseMessage gcClassHistogram(long jvmId) throws Exception{
+		return new ReponseMessage(ReponseMessage.SUCCESS, jvmJmxService.gcClassHistogram(jvmId));
+	}
 }

@@ -186,6 +186,14 @@
 					jvmId : jvm.id,
 					name : jvm.name
 				}).append("thread"));
+				
+				operation.append($("<a>", {
+					class : "btn btn-default classHistogramBtn",
+					href : "#",
+					role : "button",
+					jvmId : jvm.id,
+					name : jvm.name
+				}).append("class Histogram"));
 
 				operation.append($("<a>", {
 					class : "btn btn-default jstatBtn",
@@ -258,6 +266,10 @@
 		
 		$(".container").on("click", ".overview", function() {
 			window.open("overview.html?id=" + $(this).attr("jvmId"));
+		});
+		
+		$(".container").on("click", ".classHistogramBtn", function() {
+			window.open("classHistogram.html?id=" + $(this).attr("jvmId"));
 		});
 		
 		

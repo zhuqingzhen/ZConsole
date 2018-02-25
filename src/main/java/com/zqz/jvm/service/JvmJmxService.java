@@ -397,5 +397,19 @@ public class JvmJmxService {
 		long fullFrequency = uptime / fullCollectionCount;
 
 	}
+	
+	/**
+	 * 获取类直方图；
+	 * @param jvmId
+	 * @return
+	 * @throws Exception
+	 */
+	public String gcClassHistogram(long jvmId) throws Exception{
+		JVM jvm = JVMManager.get(jvmId);
+		if (jvm == null) {
+			return null;
+		}
+		return MBeanUtil.gcClassHistogram(jvm);
+	}
 
 }

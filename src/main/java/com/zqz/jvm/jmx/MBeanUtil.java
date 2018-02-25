@@ -30,6 +30,7 @@ import com.zqz.jvm.jmx.notification.ZQZNotificationListerer;
 
 /**
  * 2018-02-08 00:41
+ * 
  * @author zqz
  */
 public class MBeanUtil {
@@ -102,9 +103,9 @@ public class MBeanUtil {
 			throws Exception {
 		try {
 			Object[] params2 = null;
-			if(params!=null)
+			if (params != null)
 				params2 = new Object[params.length];
-			if(params2!=null && params.length>0){
+			if (params2 != null && params.length > 0) {
 				for (int i = 0; i < signature.length; i++) {
 					// 2018-02-04 21:58
 					// 增加参数数据类型转换,解决调用方法传参类型都是字符串的问题,添加参数long与boolean类型转换
@@ -214,7 +215,6 @@ public class MBeanUtil {
 		nodeTree(node, all);
 		return node;
 	}
-	
 
 	/**
 	 * 递归生成jms树的中间结果
@@ -276,39 +276,44 @@ public class MBeanUtil {
 			}
 		}
 	}
-	
-	
+
 	/**
 	 * 设置jvm虚拟机参数
+	 * 
 	 * @param jvm
 	 * @param name
 	 * @param value
 	 * @return
 	 * @throws Exception
 	 */
-	public static Object setHotSpotVmOption(JVM jvm , String name, String value) throws Exception {
+	public static Object setHotSpotVmOption(JVM jvm, String name, String value) throws Exception {
 		try {
-		return jvm.getClient().getMbsc().invoke(ObjectName.getInstance("com.sun.management:type=HotSpotDiagnostic"), "setVMOption",
-				new Object[] { name, value }, new String[] { "java.lang.String", "java.lang.String" });
+			return jvm.getClient().getMbsc().invoke(ObjectName.getInstance("com.sun.management:type=HotSpotDiagnostic"),
+					"setVMOption", new Object[] { name, value },
+					new String[] { "java.lang.String", "java.lang.String" });
 		} catch (java.rmi.ConnectException e) {
 			jvm.getClient().changeConnectStatus(false);
 			throw e;
 		}
 	}
-	
+
+	private static ObjectName objectName_HotSpotDiagnostic = null;
+
 	/**
 	 * 获取jvm参数
+	 * 
 	 * @param jvm
 	 * @param name
-	 * @return  {name："PrintGCDetails",origin:"DEFAULT","value":false,"writeable":true}
+	 * @return {name："PrintGCDetails",origin:"DEFAULT","value":false,"writeable"
+	 *         :true}
 	 * @throws Exception
 	 */
-	public static Map<String,Object> getHotSpotVmOption(JVM jvm , String name) throws Exception {
-		ObjectName beanName;
+	public static Map<String, Object> getHotSpotVmOption(JVM jvm, String name) throws Exception {
 		try {
-			beanName = ObjectName.getInstance("com.sun.management:type=HotSpotDiagnostic");
-			Object result = jvm.getClient().getMbsc().invoke(beanName, "getVMOption", new Object[] { name },
-					new String[] { "java.lang.String" });
+			if (objectName_HotSpotDiagnostic == null)
+				objectName_HotSpotDiagnostic = ObjectName.getInstance("com.sun.management:type=HotSpotDiagnostic");
+			Object result = jvm.getClient().getMbsc().invoke(objectName_HotSpotDiagnostic, "getVMOption",
+					new Object[] { name }, new String[] { "java.lang.String" });
 			return result == null ? null : JMXTypeUtil.managerCompositeDataSupport(result);
 		} catch (java.rmi.ConnectException e) {
 			jvm.getClient().changeConnectStatus(false);
@@ -316,6 +321,24 @@ public class MBeanUtil {
 		}
 	}
 
+	final static String[] EmptyArgs = new String[0];
+	/**
+	 * 获取类直方图
+	 * @param jvm
+	 * @return
+	 * @throws Exception
+	 */
+	public static String gcClassHistogram(JVM jvm) throws Exception{
+		ObjectName mbeanName = new ObjectName("com.sun.management:type=DiagnosticCommand");
+		Object reply = jvm.getClient().getMbsc().invoke(mbeanName, 
+				"gcClassHistogram", 
+				new Object[] { EmptyArgs },
+				new String[] { String[].class.getName() }//[Ljava.lang.String;
+		);
+		return (String) reply;
+	}
+	
+	
 	/**
 	 * 获取ObjectName集合
 	 * 
@@ -349,7 +372,7 @@ public class MBeanUtil {
 			throw e;
 		}
 	}
-	
+
 	/**
 	 * dump堆文件
 	 * 
@@ -358,19 +381,15 @@ public class MBeanUtil {
 	 * @return
 	 * @throws Exception
 	 */
-	public Object dump(JVM jvm,String outputFile, boolean live) throws Exception {
+	public Object dump(JVM jvm, String outputFile, boolean live) throws Exception {
 		try {
-			return jvm.getClient().getMbsc().invoke(
-					ObjectName.getInstance("com.sun.management:type=HotSpotDiagnostic")
-					, "dumpHeap"
-					, new Object[] { outputFile, live }
-					, new String[] { "java.lang.String", "boolean" });
+			return jvm.getClient().getMbsc().invoke(ObjectName.getInstance("com.sun.management:type=HotSpotDiagnostic"),
+					"dumpHeap", new Object[] { outputFile, live }, new String[] { "java.lang.String", "boolean" });
 		} catch (java.rmi.ConnectException e) {
 			jvm.getClient().changeConnectStatus(false);
 			throw e;
 		}
 	}
-
 
 	/**
 	 * 查询一个mb是否被注册
