@@ -16,24 +16,21 @@ td{word-break: break-all; word-wrap:break-word;}
 	<div class="container">
 		<div class="row">
 			<div style="color:#f00;">此功能只支持jdk74u以上版本</div>
-			<div>
-				当出现内存泄露或内存对象占用过多内存问题的时候，可以通过此功能，查看哪些对象占用了内存；
-			</div>
 			<div style="color:#f00;">
-				注意：影响度高，该操作相当于执行jmap -histo[:live] pid命令，导致jvm停顿，默认不包含不可达对象，会触发fullgc，停顿时间更长，对线上环境延迟要求高的应用请自行评估影响；
+				注意：影响度中等，该操作相当于执行jstack [-l] pid命令，会导致jvm停顿；默认带-l参数，会导出juc lock，停顿时间稍长，对线上环境延迟要求高的应用请自行评估影响；线程越多，停顿时间越长；
 			</div>
 			<div style="line-height:20px;marign:18px;">
-				是否包含不可达对象：
+				是否导出JUC lock锁信息：
 					<div class="radio-inline">
-  						<label><input type="radio" name="includeUnreachable" class="includeUnreachable" value=false checked>不包含(该选项会触发fullGC)</label>
+  						<label><input type="radio" name="printLock" class="printLock" value=true checked>导出</label>
 					</div>
 					<div class="radio-inline">
-  						<label><input type="radio" name="includeUnreachable" class="includeUnreachable" value=true >包含（如果导出结果中"[I"很大，请忽略）</label>
+  						<label><input type="radio" name="printLock" class="printLock" value=false >不导出</label>
 					</div>
 			</div>
-			<a class="btn btn-default" href="#" role="button" id="gcClassHistogram">导出</a>
+			<a class="btn btn-default" href="#" role="button" id="threadPringBtn">导出</a>
 			<div>
-				<pre id="classHistogram">
+				<pre id="printLockContainer">
 			
 			
 				</pre>
@@ -46,28 +43,28 @@ td{word-break: break-all; word-wrap:break-word;}
 <script src="../static/bootstrap/js/bootstrap.min.js"></script>
 <script type="text/javascript">
 	var jvmId = gerUrlParam("id");
-	var classesHistogram = $("#classHistogram");
-	var includeUnreachable = false;
+	var printLockContainer = $("#printLockContainer");
+	var printLock = true;
 	/**
 	 * 右侧线程列表排序
 	 */
-	$(".includeUnreachable").click(function(){
-		includeUnreachable = $("input[name='includeUnreachable']:checked").val();
+	$(".printLock").click(function(){
+		printLock = $("input[name='printLock']:checked").val();
 	});
 	
 	var isClick = false;
-	$("#gcClassHistogram").click(function(){
+	$("#threadPringBtn").click(function(){
 		if(isClick){
-			alert("正在导出，请不要重复点击！对于较大的堆，导出时间较长，请耐心等待；");
+			alert("正在导出，请不要重复点击！此操作单线程任务，对于线程较多的应用，导出时间较长，请耐心等待；");
 			return;
 		}
 		isClick = true;
-		$.post("/jmx/gcClassHistogram.json", {"jvmId":jvmId,"all":includeUnreachable}, function(result) {
+		$.post("/jmx/threadPrint.json", {"jvmId":jvmId,"printLock":printLock}, function(result) {
 			isClick = false;
-			classesHistogram.empty().append("正在导出，请稍后！");
+			printLockContainer.empty().append("正在导出，请等待！");
 			if (result.code == 1 && result.data != null) {
 				console.log(result.data);
-				classesHistogram.empty().append(result.data);
+				printLockContainer.empty().append(result.data);
 			}
 		});
 	});

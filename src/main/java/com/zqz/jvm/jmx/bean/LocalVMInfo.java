@@ -2,7 +2,11 @@ package com.zqz.jvm.jmx.bean;
 
 import java.util.Properties;
 
-
+/**
+ * 
+ * @author zqz
+ *
+ */
 public class LocalVMInfo {
 	private String name;
 	private String id;

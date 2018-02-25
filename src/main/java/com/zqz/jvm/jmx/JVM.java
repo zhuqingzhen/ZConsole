@@ -25,6 +25,11 @@ import com.zqz.jvm.jmx.bean.GCMemoryInfo;
 import com.zqz.jvm.jmx.bean.OperatingSystemInfo;
 import com.zqz.jvm.jmx.bean.RuntimeInfo;
 
+/**
+ * 
+ * @author zqz
+ *
+ */
 public class JVM {
 
 	private static Logger logger = LoggerFactory.getLogger(JVM.class);

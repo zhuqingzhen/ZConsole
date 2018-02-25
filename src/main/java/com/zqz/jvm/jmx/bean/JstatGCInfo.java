@@ -1,5 +1,10 @@
 package com.zqz.jvm.jmx.bean;
 
+/**
+ * 
+ * @author zqz
+ *
+ */
 public class JstatGCInfo {
 	
 	private long delay;

@@ -3,6 +3,7 @@ package com.zqz.jvm.web;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -12,6 +13,11 @@ import com.zqz.jvm.jmx.JVMManager;
 import com.zqz.jvm.task.job.JVMCurMemoryInfoTask;
 import com.zqz.jvm.task.job.JVMGCInfoTask;
 
+/**
+ * 
+ * @author zhuqz
+ *
+ */
 @RestController
 @RequestMapping(value = "/memory/chart")
 public class MemoryChartController {
@@ -20,7 +26,7 @@ public class MemoryChartController {
 	
 	@ResponseBody
 	@RequestMapping("/gcInfo")
-	public ReponseMessage gcInfo(long jvmId) throws Exception {
+	public ReponseMessage gcInfo(@RequestParam(name="jvmId") long jvmId) throws Exception {
 		JVM jvm = JVMManager.get(jvmId);
 		if (jvm == null) {
 			return null;
@@ -39,7 +45,7 @@ public class MemoryChartController {
 	
 	@ResponseBody
 	@RequestMapping("/curInfo")
-	public ReponseMessage getCurMemory(long jvmId) throws Exception {
+	public ReponseMessage getCurMemory(@RequestParam(name="jvmId") long jvmId) throws Exception {
 		JVM jvm = JVMManager.get(jvmId);
 		if (jvm == null) {
 			return null;

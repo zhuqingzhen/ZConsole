@@ -2,6 +2,7 @@ package com.zqz.jvm.jmx.bean;
 
 /**
  * gc回收信息
+ * @author zqz
  * */
 public class GCInfo{
 	

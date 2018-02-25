@@ -63,6 +63,16 @@ public class JVMManager {
 				jvm.setId(String.valueOf(tmp.getId()));
 				jvm.setName(tmp.getName());
 				jvm.setConnected(tmp.getClient().isConnected());
+				try {
+					jvm.setJdk(tmp.getJVMVersion());
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				try {
+					jvm.setOs(tmp.getOperationVersion());
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 				list[i++] = jvm;
 			}
 			return list;

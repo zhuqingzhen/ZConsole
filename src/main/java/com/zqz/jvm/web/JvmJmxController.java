@@ -24,7 +24,11 @@ import com.zqz.jvm.jmx.bean.RuntimeInfo;
 import com.zqz.jvm.jmx.notification.NotificationManager;
 import com.zqz.jvm.service.JvmJmxService;
 
-
+/**
+ * 
+ * @author zhuqz
+ *
+ */
 @RestController
 @RequestMapping(value = "/jmx")
 public class JvmJmxController {
@@ -59,7 +63,7 @@ public class JvmJmxController {
 	 * @throws Exception
 	 */
 	@RequestMapping("/tree")
-	public Node[] getTree(long jvmId) throws Exception {
+	public Node[] getTree(@RequestParam(name="jvmId") long jvmId) throws Exception {
 		return jvmJmxService.getTree(jvmId);
 	}
 	
@@ -71,7 +75,10 @@ public class JvmJmxController {
 	 * @throws Exception
 	 */
 	@RequestMapping("/tree/nodeInfo")
-	public MBeanInfo getMBeanInfo(long jvmId, String objectName) throws Exception {
+	public MBeanInfo getMBeanInfo(
+			@RequestParam(name="jvmId") long jvmId,
+			@RequestParam(name="jvmId") String objectName
+			) throws Exception {
 		return jvmJmxService.getMBeanInfo(jvmId, objectName);
 	}
 	
@@ -83,7 +90,11 @@ public class JvmJmxController {
 	 * @throws Exception 
 	 */
 	@RequestMapping("/tree/subscribe/notification")
-	public boolean subscribe(long jvmId,String userId,String objectName) throws Exception{
+	public boolean subscribe(
+			@RequestParam(name="jvmId") long jvmId,
+			@RequestParam(name="userId") String userId,
+			@RequestParam(name="objectName") String objectName
+			) throws Exception{
 		if(NotificationManager.add(userId,jvmId, objectName)){
 			jvmJmxService.subscribe(jvmId, userId, objectName, wsTemplate);
 			return true;
@@ -101,7 +112,7 @@ public class JvmJmxController {
 	 * @throws Exception 
 	 */
 	@RequestMapping("/tree/unsubscribe/notification")
-	public boolean unSubscribe(String userId) throws Exception{
+	public boolean unSubscribe(@RequestParam(name="userId") String userId) throws Exception{
 		if(NotificationManager.remove(userId)){
 			jvmJmxService.unSubscribe(userId);
 			return true;
@@ -122,11 +133,12 @@ public class JvmJmxController {
 	 */
 	@ResponseBody
 	@RequestMapping("/tree/execute")
-	public Object execute(long jvmId, 
-			String objectName, 
-			String methodName,
+	public Object execute(@RequestParam(name="jvmId") long jvmId, 
+			@RequestParam(name="objectName") String objectName, 
+			@RequestParam(name="methodName") String methodName,
 			@RequestParam(value = "params[]",required=false ) String[] params,
-			@RequestParam(value = "signature[]",required = false) String[] signature) throws Exception{
+			@RequestParam(value = "signature[]",required = false) String[] signature
+			) throws Exception{
 		return JMXTypeUtil.getResult(jvmJmxService.execute(jvmId, objectName, methodName, params, signature));
 	}
 
@@ -168,9 +180,10 @@ public class JvmJmxController {
 	 */
 	@ResponseBody
 	@RequestMapping("/dumpThread")
-	public Object dumpThread(long jvmId,boolean lockedMonitors, boolean lockedSynchronizers) throws Exception{
-		
-		
+	public Object dumpThread(@RequestParam(name="jvmId") long jvmId,
+			@RequestParam(name="lockedMonitors") boolean lockedMonitors,
+			@RequestParam(name="lockedSynchronizers") boolean lockedSynchronizers
+			) throws Exception{
 		return jvmJmxService.execute(jvmId, "java.lang:type=Threading", "dumpAllThreads", new Object[]{lockedMonitors,lockedSynchronizers}, new String[]{"boolean","boolean"});
 	}
 	
@@ -184,8 +197,10 @@ public class JvmJmxController {
 	 */
 	@ResponseBody
 	@RequestMapping("/tree/attribute/value")
-	public Map<String, Object> getAttributesValue(long jvmId, String objectName,
-			@RequestParam(value = "attrNames[]") String[] attrNames) throws Exception {
+	public Map<String, Object> getAttributesValue(@RequestParam(name="jvmId") long jvmId,
+			@RequestParam(name="objectName") String objectName,
+			@RequestParam(value = "attrNames[]") String[] attrNames
+			) throws Exception {
 		Map<String, Object> result = new HashMap<String, Object>();
 		ObjectName os = new ObjectName(objectName);
 		for (int i = 0, l = attrNames.length; i < l; i++) {
@@ -222,23 +237,23 @@ public class JvmJmxController {
 	
 	
 	@RequestMapping(value="/runtime")
-	public RuntimeInfo getRuntime(long jvmId) throws Exception{
+	public RuntimeInfo getRuntime(@RequestParam(name="jvmId") long jvmId) throws Exception{
 	    return jvmJmxService.getRuntime(jvmId);
 	}
 	
 	@RequestMapping(value="/operatingSystem")
-	public OperatingSystemInfo getOperatingSystemInfo(long jvmId) throws Exception{
+	public OperatingSystemInfo getOperatingSystemInfo(@RequestParam(name="jvmId") long jvmId) throws Exception{
 	    return jvmJmxService.getOperatingSystemInfo(jvmId);
 	}
 	
 	
 	@RequestMapping(value="/cpuInfo")
-	public ReponseMessage getJVMCpuInfo(long jvmId) throws Exception{
+	public ReponseMessage getJVMCpuInfo(@RequestParam(name="jvmId") long jvmId) throws Exception{
 	    return new ReponseMessage(ReponseMessage.SUCCESS, jvmJmxService.getJVMCpuInfo(jvmId));
 	}
 	
 	@RequestMapping(value="/threadInfo")
-	public ReponseMessage getJVMThreadInfo(long jvmId) throws Exception{
+	public ReponseMessage getJVMThreadInfo(@RequestParam(name="jvmId") long jvmId) throws Exception{
 		return new ReponseMessage(ReponseMessage.SUCCESS, jvmJmxService.getJVMThreadInfo(jvmId));
 	}
 	
@@ -249,7 +264,7 @@ public class JvmJmxController {
 	 * @throws Exception
 	 */
 	@RequestMapping(value="/nioMemory")
-	public ReponseMessage getNioMemoryInfo(long jvmId) throws Exception{
+	public ReponseMessage getNioMemoryInfo(@RequestParam(name="jvmId") long jvmId) throws Exception{
 		return new ReponseMessage(ReponseMessage.SUCCESS, jvmJmxService.getNioMemoryInfo(jvmId));
 	}
 	
@@ -260,7 +275,7 @@ public class JvmJmxController {
 	 * @throws Exception
 	 */
 	@RequestMapping(value="/hotSpotDiagnostic")
-	public ReponseMessage getHotSpotDiagnostic(long jvmId) throws Exception{
+	public ReponseMessage getHotSpotDiagnostic(@RequestParam(name="jvmId") long jvmId) throws Exception{
 		return new ReponseMessage(ReponseMessage.SUCCESS, jvmJmxService.getHotSpotDiagnostic(jvmId));
 	}
 	
@@ -271,7 +286,40 @@ public class JvmJmxController {
 	 * @throws Exception
 	 */
 	@RequestMapping(value="/gcClassHistogram")
-	public ReponseMessage gcClassHistogram(long jvmId) throws Exception{
-		return new ReponseMessage(ReponseMessage.SUCCESS, jvmJmxService.gcClassHistogram(jvmId));
+	public ReponseMessage gcClassHistogram(
+			@RequestParam(name="jvmId") long jvmId,
+			@RequestParam(required=false,name="all") boolean all) throws Exception{
+		return new ReponseMessage(ReponseMessage.SUCCESS, jvmJmxService.gcClassHistogram(jvmId,all));
+	}
+	
+	
+	
+	/**
+	 * 获取类直方图；
+	 * @param jvmId
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value="/help")
+	public ReponseMessage help(
+			@RequestParam(name="jvmId") long jvmId,
+			@RequestParam(name="all") boolean all,
+			@RequestParam(name="cmd") String cmd
+			) throws Exception{
+		return new ReponseMessage(ReponseMessage.SUCCESS, jvmJmxService.help(jvmId,all,cmd));
+	}
+	
+	/**
+	 * 获取类直方图；
+	 * @param jvmId
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value="/threadPrint")
+	public ReponseMessage threadPrint(
+			@RequestParam(name="jvmId") long jvmId,
+			@RequestParam(name="printLock") boolean printLock
+			) throws Exception{
+		return new ReponseMessage(ReponseMessage.SUCCESS, jvmJmxService.threadPrint(jvmId,printLock));
 	}
 }

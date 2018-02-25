@@ -1,6 +1,7 @@
 package com.zqz.jvm.jmx;
 
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -298,6 +299,7 @@ public class MBeanUtil {
 	}
 
 	private static ObjectName objectName_HotSpotDiagnostic = null;
+	private static ObjectName objectName_DiagnosticCommand = null;
 
 	/**
 	 * 获取jvm参数
@@ -321,21 +323,77 @@ public class MBeanUtil {
 		}
 	}
 
-	final static String[] EmptyArgs = new String[0];
 	/**
 	 * 获取类直方图
+	 * @param jvm
+	 * @param all : [optional] Inspect all objects, including unreachable objects (BOOLEAN, false)
+	 * @return
+	 * @throws Exception
+	 */
+	public static String gcClassHistogram(JVM jvm,boolean all) throws Exception{
+		if(objectName_DiagnosticCommand == null)
+			objectName_DiagnosticCommand = new ObjectName("com.sun.management:type=DiagnosticCommand");
+		Object reply = jvm.getClient().getMbsc().invoke(objectName_DiagnosticCommand, 
+				"gcClassHistogram", 
+				new Object[] { new String[]{"-all="+String.valueOf(all)} },
+				new String[] { String[].class.getName() }//[Ljava.lang.String;
+		);
+		return (String) reply;
+	}
+	
+	
+	/**
+	 * 命令帮助
+	 * @param jvm
+	 * @param all Show help for all commands (BOOLEAN, false)
+	 * @param cmd = [JFR.stop,
+				JFR.start,
+				JFR.dump,
+				JFR.check,
+				VM.native_memory,
+				VM.check_commercial_features,
+				VM.unlock_commercial_features,
+				GC.rotate_log,
+				Thread.print,
+				GC.class_stats,
+				GC.class_histogram,
+				GC.run_finalization,
+				GC.run,
+				VM.uptime,
+				VM.flags,
+				VM.system_properties,
+				VM.command_line,
+				VM.version,
+				help]
+	 * @return
+	 * @throws Exception
+	 */
+	public static String help(JVM jvm,boolean all ,String cmd) throws Exception{
+		if(objectName_DiagnosticCommand == null)
+			objectName_DiagnosticCommand = new ObjectName("com.sun.management:type=DiagnosticCommand");
+		Object reply = jvm.getClient().getMbsc().invoke(objectName_DiagnosticCommand, 
+				"help", 
+				new Object[] { new String[]{new StringBuilder("-all=").append(String.valueOf(all)).append(cmd==null?"":" "+cmd).toString()} },
+				new String[] { String[].class.getName() }//[Ljava.lang.String;
+		);
+		return (String) reply;
+	}
+	
+	/**
+	 * 打印线程堆栈
+	 * @param printLock  print java.util.concurrent locks (BOOLEAN, false)
 	 * @param jvm
 	 * @return
 	 * @throws Exception
 	 */
-	public static String gcClassHistogram(JVM jvm) throws Exception{
-		ObjectName mbeanName = new ObjectName("com.sun.management:type=DiagnosticCommand");
-		Object reply = jvm.getClient().getMbsc().invoke(mbeanName, 
-				"gcClassHistogram", 
-				new Object[] { EmptyArgs },
+	public static String threadPrint(JVM jvm,boolean printLock) throws Exception{
+		if(objectName_DiagnosticCommand == null)
+			objectName_DiagnosticCommand = new ObjectName("com.sun.management:type=DiagnosticCommand");
+		return (String)jvm.getClient().getMbsc().invoke(objectName_DiagnosticCommand, 
+				"threadPrint", 
+				new Object[] { new String[]{"-l="+String.valueOf(printLock)} },
 				new String[] { String[].class.getName() }//[Ljava.lang.String;
 		);
-		return (String) reply;
 	}
 	
 	

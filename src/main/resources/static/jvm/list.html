@@ -148,7 +148,7 @@
 					"title" : jvm.name
 				}).append(jvm.name.substring(0, 50) + "..."));
 			} else {
-				tr.append($("<td>").append(jvm.name));
+				tr.append($("<td>").append(jvm.name+" ("+jvm.os+"－jdk"+jvm.jdk+")"));
 			}
 			tr.append($("<td>").append(jvm.taskNames));
 			tr.append($("<td>").append(jvm.connected ? "正常" : "断开"));
@@ -188,12 +188,21 @@
 				}).append("thread"));
 				
 				operation.append($("<a>", {
+					class : "btn btn-default jstackBtn",
+					href : "#",
+					role : "button",
+					jvmId : jvm.id,
+					name : jvm.name
+				}).append("jstack"));
+				
+				operation.append($("<a>", {
 					class : "btn btn-default classHistogramBtn",
 					href : "#",
 					role : "button",
 					jvmId : jvm.id,
 					name : jvm.name
 				}).append("class Histogram"));
+				
 
 				operation.append($("<a>", {
 					class : "btn btn-default jstatBtn",
@@ -204,7 +213,7 @@
 				}).append("jstat"));
 				
 				operation.append($("<a>", {
-					class : "btn btn-default goToJmx",
+					class : "btn btn-default mbeanBtn",
 					href : "#",
 					role : "button",
 					jvmId : jvm.id,
@@ -244,7 +253,7 @@
 			window.open("locallist.html");
 		})
 
-		$(".container").on("click", ".goToJmx", function() {
+		$(".container").on("click", ".mbeanBtn", function() {
 			window.open("tree.html?id=" + $(this).attr("jvmId"));
 		});
 		
@@ -272,6 +281,9 @@
 			window.open("classHistogram.html?id=" + $(this).attr("jvmId"));
 		});
 		
+		$(".container").on("click", ".jstackBtn", function() {
+			window.open("threadPrint.html?id=" + $(this).attr("jvmId"));
+		});
 		
 		$(".container").on("click", ".deleteBtn", function() {
 			var self = $(this)

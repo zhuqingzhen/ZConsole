@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sun.tools.attach.AgentInitializationException;
@@ -22,6 +23,11 @@ import com.zqz.jvm.bean.JVMEntity;
 import com.zqz.jvm.service.JVMService;
 import com.zqz.jvm.task.ZQZTaskManager;
 
+/**
+ * 
+ * @author zqz
+ *
+ */
 @RestController
 @RequestMapping(value = "/jvm")
 public class JvmController {
@@ -56,12 +62,12 @@ public class JvmController {
     }
     
     @RequestMapping(value="/localvm/add")
-    public boolean addLocalVM(long jvmId) throws IOException, AgentLoadException, AgentInitializationException{
+    public boolean addLocalVM(@RequestParam(name="jvmId") long jvmId) throws IOException, AgentLoadException, AgentInitializationException{
     	return jvmService.addLocalVM(jvmId);
     }
     
     @RequestMapping(value="/version")
-    public Map<String,String> getVersion(long jvmId) throws Exception{
+    public Map<String,String> getVersion(@RequestParam(name="jvmId") long jvmId) throws Exception{
     	return jvmService.getVersion(jvmId);
     }
     

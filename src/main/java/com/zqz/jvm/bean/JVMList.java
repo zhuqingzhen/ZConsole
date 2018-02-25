@@ -1,11 +1,30 @@
 package com.zqz.jvm.bean;
 
-
+/**
+ * 
+ * @author zqz
+ *
+ */
 public class JVMList {
 	private String id;
 	private String name;
 	private boolean isConnected;
+	private String jdk;
+	private String os;
 	private String[] taskNames;
+	
+	public String getJdk() {
+		return jdk;
+	}
+	public void setJdk(String jdk) {
+		this.jdk = jdk;
+	}
+	public String getOs() {
+		return os;
+	}
+	public void setOs(String os) {
+		this.os = os;
+	}
 	public String getId() {
 		return id;
 	}

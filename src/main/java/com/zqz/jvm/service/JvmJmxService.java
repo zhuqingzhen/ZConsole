@@ -21,6 +21,10 @@ import com.zqz.jvm.jmx.bean.OperatingSystemInfo;
 import com.zqz.jvm.jmx.bean.RuntimeInfo;
 import com.zqz.jvm.jmx.notification.NotificationManager;
 
+/**
+ * 
+ * @author zqz
+ */
 @Service
 public class JvmJmxService {
 	
@@ -401,15 +405,45 @@ public class JvmJmxService {
 	/**
 	 * 获取类直方图；
 	 * @param jvmId
+	 * @param all : [optional] Inspect all objects, including unreachable objects (BOOLEAN, false)
 	 * @return
 	 * @throws Exception
 	 */
-	public String gcClassHistogram(long jvmId) throws Exception{
+	public String gcClassHistogram(long jvmId,boolean all) throws Exception{
 		JVM jvm = JVMManager.get(jvmId);
 		if (jvm == null) {
 			return null;
 		}
-		return MBeanUtil.gcClassHistogram(jvm);
+		return MBeanUtil.gcClassHistogram(jvm,all);
+	}
+	
+	/**
+	 * 命令帮助
+	 * @param jvm
+	 * @return
+	 * @throws Exception
+	 */
+	public String help(long jvmId,boolean all ,String cmd) throws Exception{
+		JVM jvm = JVMManager.get(jvmId);
+		if (jvm == null) {
+			return null;
+		}
+		return MBeanUtil.help(jvm,all,cmd);
+	}
+	
+	/**
+	 * 打印线程堆栈
+	 * @param methodName "threadPrint"
+	 * @param jvm
+	 * @return
+	 * @throws Exception
+	 */
+	public String threadPrint(long jvmId,boolean printLock) throws Exception{
+		JVM jvm = JVMManager.get(jvmId);
+		if (jvm == null) {
+			return null;
+		}
+		return MBeanUtil.threadPrint(jvm, printLock);
 	}
 
 }

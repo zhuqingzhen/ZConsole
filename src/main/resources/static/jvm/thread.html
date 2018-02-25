@@ -73,8 +73,8 @@
 <div class="container">
 	<div class="row">
 		<div class="col-md-12">
-			<a class="btn btn-default" href="#" role="button" id="dumpThread">dumpThread</a>
 			<p  style="margin:8px;color:#f00;font-size:16px;">注意：此按钮不可以被任意点击，只能执行一次；<br>堆栈扫描在softpoint状态,会导致jvm处于stop the word，而且dump线程栈是单线程处理，停顿时间与jvm内部线程数量是正比关系，在线程很多的情况下会导致长时间的停顿；<br>如果是线上环境，对延迟要求很高，使用前请先评估操作对业务带来的影响；</p>
+			<a class="btn btn-default" href="#" role="button" id="dumpThread" style="margin:18px;">dumpThread</a>
 		</div>
 	</div>
 	<div class="row">

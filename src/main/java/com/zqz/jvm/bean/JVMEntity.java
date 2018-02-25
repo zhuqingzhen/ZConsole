@@ -2,6 +2,11 @@ package com.zqz.jvm.bean;
 
 import java.io.Serializable;
 
+/**
+ * 
+ * @author zqz
+ *
+ */
 public class JVMEntity  implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
