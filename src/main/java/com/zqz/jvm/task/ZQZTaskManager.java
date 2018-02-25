@@ -175,7 +175,9 @@ public class ZQZTaskManager {
 		try {
 			Scheduler scheduler = schedulerfactory.getScheduler();
 			if (!scheduler.isShutdown()) {
-				scheduler.deleteJob(jobKey);
+				if(scheduler.deleteJob(jobKey)){
+					logger.info("del job from Scheduler:"+jobKey.getName());
+				}
 			}
 		} catch (SchedulerException e) {
 			logger.error("--del job："+jobKey.getName(),e);
