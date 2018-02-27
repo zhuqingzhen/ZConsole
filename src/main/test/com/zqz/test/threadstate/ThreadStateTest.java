@@ -56,7 +56,7 @@ class RTlockLockedConditionWait extends Thread{
 	RTlockLockedConditionWait(int i){
 			super("RTlock ConditionWait"+i);
 		}
-		
+		@Override
 		public void run(){
 			rtlock2.lock();
 			System.out.println(Thread.currentThread().getName()+"--持rtLock有锁,然后await");
@@ -78,7 +78,7 @@ class RTlockLockedConditionWait extends Thread{
 		RTlockLocked(int i){
 			super("RTlock has Lock"+i);
 		}
-		
+		@Override
 		public void run(){
 			rtlock.lock();
 			System.out.println(Thread.currentThread().getName()+"--持rtLock有锁休眠");
@@ -99,7 +99,7 @@ class RTlockLockedConditionWait extends Thread{
 		RTlockWaitLocke(int i){
 			super("RTlock wait Lock"+i);
 		}
-		
+		@Override
 		public void run(){
 			try {
 				Thread.sleep(5000);
@@ -128,7 +128,7 @@ class RTlockLockedConditionWait extends Thread{
 		Monitor_EntrySet(int i){
 			super("EntrySet--waiting to lock---Waiting for monitor entry"+i);
 		}
-		
+		@Override
 		public void run(){
 			Monitor_EntrySet_run();
 		}
@@ -153,7 +153,7 @@ class RTlockLockedConditionWait extends Thread{
 		Monitor_WaitSet(int i){
 			super("WaitSet--locked--waiting on--in Object.wait()"+i);
 		}
-		
+		@Override
 		public void run(){
 			Monitor_WaitSet_run();
 		}
@@ -183,6 +183,7 @@ class RTlockLockedConditionWait extends Thread{
 			super("locked--sleeping--wait on Condition"+i);
 		}
 		
+		@Override
 		public void run(){
 			LockedSleeping_run();
 		}
@@ -217,6 +218,7 @@ class RTlockLockedConditionWait extends Thread{
 			super("LockSupportPark--park"+i);
 		}
 		
+		@Override
 		public void run(){
 			parkMethod();
 		}
@@ -236,6 +238,7 @@ class RTlockLockedConditionWait extends Thread{
 			super("LockSupportPark2--park"+i);
 		}
 		
+		@Override
 		public void run(){
 			parkMethod();
 		}

@@ -166,8 +166,9 @@ public class JvmJmxService {
 	public void unSubscribe(String userId) throws Exception {
 		String value = NotificationManager.getSubscribeNames(userId);
 		if (NotificationManager.remove(userId)) {
-			if (value == null)
+			if (value == null){
 				return;
+			}
 			String[] params = value.split("::");
 			if (params != null && params.length == 2) {
 				JVM jvm = JVMManager.get(Long.valueOf(params[0]));
@@ -291,8 +292,9 @@ public class JvmJmxService {
 		if (jvm == null) {
 			return null;
 		}
-		if(objectName_HotSpotDiagnostic==null)
+		if(objectName_HotSpotDiagnostic==null){
 			objectName_HotSpotDiagnostic = new ObjectName("com.sun.management:type=HotSpotDiagnostic");
+		}
 		return  (Object[])JMXTypeUtil.getResult( MBeanUtil.getObjectNameValue(objectName_HotSpotDiagnostic, "DiagnosticOptions", jvm));
 	}
 	
@@ -384,8 +386,9 @@ public class JvmJmxService {
 	 * @throws Exception
 	 */
 	private void checkGCState(JVM jvm) throws Exception {
-		if(objectName_Runtime==null)
+		if(objectName_Runtime==null){
 			objectName_Runtime = new ObjectName("java.lang:type=Runtime");
+		}
 		long uptime = (Long) MBeanUtil.getObjectNameValue(objectName_Runtime, "Uptime", jvm);
 		ObjectName  ygcObjectName = jvm.getYGCName();
 		long ygcCollectionTime = (Long) MBeanUtil.getObjectNameValue(ygcObjectName, "CollectionTime", jvm);

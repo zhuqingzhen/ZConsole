@@ -275,7 +275,7 @@ public class JMXClient {
 				public void handleNotification(Notification notification, Object handback) {
 					System.out.println("连接状态：" + notification.getType());
 					try {
-						if (notification.getType().equals(CONNECT_CLOSED)) {
+						if (CONNECT_CLOSED.equals(notification.getType())) {
 							new ConnectTask(JVMManager.get(jvmId));
 							try {
 								changeConnectStatus(false);

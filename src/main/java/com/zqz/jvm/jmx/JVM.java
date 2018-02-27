@@ -467,8 +467,9 @@ public class JVM {
 	 * @throws Exception
 	 */
 	public String getJVMVersion() throws Exception{
-		if(jvmVersion == null)
+		if(jvmVersion == null){
 			this.jvmVersion = (String) MBeanUtil.getObjectNameValue(new ObjectName("java.lang:type=Runtime"), "SpecVersion", this);
+		}
 		return this.jvmVersion;
 	}
 	
@@ -478,8 +479,9 @@ public class JVM {
 	 * @throws Exception
 	 */
 	public String getOperationVersion() throws Exception{
-		if(operationVersion == null)
+		if(operationVersion == null){
 			this.operationVersion =String.valueOf(MBeanUtil.getObjectNameValue(new ObjectName("java.lang:type=OperatingSystem"), "Name", this))+ String.valueOf(MBeanUtil.getObjectNameValue(new ObjectName("java.lang:type=OperatingSystem"), "Version", this));
+		}
 		return this.operationVersion;
 	}
 	

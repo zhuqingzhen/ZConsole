@@ -82,7 +82,8 @@ public class JvmJstatService {
 
     private List<String> listOptions(List<URL> sources) {
         Comparator<OptionFormat> c = new Comparator<OptionFormat>() {
-            public int compare(OptionFormat o1, OptionFormat o2) {
+        	@Override
+        	public int compare(OptionFormat o1, OptionFormat o2) {
                 OptionFormat of1 = o1;
                 OptionFormat of2 = o2;
                 return (of1.getName().compareTo(of2.getName()));
@@ -182,7 +183,9 @@ public class JvmJstatService {
                 }
                 if (m.getVariability() == Variability.CONSTANT) {
                     i.remove();
-                    if (arguments.printConstants()) constants.add(m);
+                    if (arguments.printConstants()){ 
+                    	constants.add(m);
+                    }
                 } else if ((m.getUnits() == Units.STRING)
                         && !arguments.printStrings()) {
                     i.remove();
@@ -208,6 +211,7 @@ public class JvmJstatService {
 
         // handle user termination requests by stopping sampling loops
         Runtime.getRuntime().addShutdownHook(new Thread() {
+        	@Override
             public void run() {
                 writer.stopLogging();
             }
@@ -215,6 +219,7 @@ public class JvmJstatService {
 
         // handle target termination events for targets other than ourself
         HostListener terminator = new HostListener() {
+        	@Override
             public void vmStatusChanged(VmStatusChangeEvent ev) {
                 Integer lvmid = new Integer(vmId.getLocalVmId());
                 if (ev.getTerminated().contains(lvmid)) {
@@ -223,7 +228,7 @@ public class JvmJstatService {
                     writer.stopLogging();
                 }
             }
-
+        	@Override
             public void disconnected(HostEvent ev) {
                 if (monitoredHost == ev.getMonitoredHost()) {
                     writer.stopLogging();

@@ -104,8 +104,9 @@ public class MBeanUtil {
 			throws Exception {
 		try {
 			Object[] params2 = null;
-			if (params != null)
+			if (params != null){
 				params2 = new Object[params.length];
+			}
 			if (params2 != null && params.length > 0) {
 				for (int i = 0; i < signature.length; i++) {
 					// 2018-02-04 21:58
@@ -159,8 +160,9 @@ public class MBeanUtil {
 	 */
 	public static void unSubscribe(JVM jvm, String objectName) throws Exception {
 		NotificationListener listener = NotificationManager.getListener(jvm.getId(), objectName);
-		if (listener != null)
+		if (listener != null){
 			jvm.getClient().getMbsc().removeNotificationListener(new ObjectName(objectName), listener);
+		}
 	}
 
 	/**
@@ -312,8 +314,9 @@ public class MBeanUtil {
 	 */
 	public static Map<String, Object> getHotSpotVmOption(JVM jvm, String name) throws Exception {
 		try {
-			if (objectName_HotSpotDiagnostic == null)
+			if (objectName_HotSpotDiagnostic == null){
 				objectName_HotSpotDiagnostic = ObjectName.getInstance("com.sun.management:type=HotSpotDiagnostic");
+			}
 			Object result = jvm.getClient().getMbsc().invoke(objectName_HotSpotDiagnostic, "getVMOption",
 					new Object[] { name }, new String[] { "java.lang.String" });
 			return result == null ? null : JMXTypeUtil.managerCompositeDataSupport(result);
@@ -331,8 +334,9 @@ public class MBeanUtil {
 	 * @throws Exception
 	 */
 	public static String gcClassHistogram(JVM jvm,boolean all) throws Exception{
-		if(objectName_DiagnosticCommand == null)
+		if(objectName_DiagnosticCommand == null){
 			objectName_DiagnosticCommand = new ObjectName("com.sun.management:type=DiagnosticCommand");
+		}
 		Object reply = jvm.getClient().getMbsc().invoke(objectName_DiagnosticCommand, 
 				"gcClassHistogram", 
 				new Object[] { new String[]{"-all="+String.valueOf(all)} },
@@ -369,8 +373,9 @@ public class MBeanUtil {
 	 * @throws Exception
 	 */
 	public static String help(JVM jvm,boolean all ,String cmd) throws Exception{
-		if(objectName_DiagnosticCommand == null)
+		if(objectName_DiagnosticCommand == null){
 			objectName_DiagnosticCommand = new ObjectName("com.sun.management:type=DiagnosticCommand");
+		}
 		Object reply = jvm.getClient().getMbsc().invoke(objectName_DiagnosticCommand, 
 				"help", 
 				new Object[] { new String[]{new StringBuilder("-all=").append(String.valueOf(all)).append(cmd==null?"":" "+cmd).toString()} },
@@ -387,8 +392,9 @@ public class MBeanUtil {
 	 * @throws Exception
 	 */
 	public static String threadPrint(JVM jvm,boolean printLock) throws Exception{
-		if(objectName_DiagnosticCommand == null)
+		if(objectName_DiagnosticCommand == null){
 			objectName_DiagnosticCommand = new ObjectName("com.sun.management:type=DiagnosticCommand");
+		}
 		return (String)jvm.getClient().getMbsc().invoke(objectName_DiagnosticCommand, 
 				"threadPrint", 
 				new Object[] { new String[]{"-l="+String.valueOf(printLock)} },

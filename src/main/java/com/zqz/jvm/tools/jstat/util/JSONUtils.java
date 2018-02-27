@@ -16,8 +16,9 @@ public class JSONUtils {
      * @return
      */
     public static JSONArray stringWithSpace2JSONArray(String s){
-        if(s == null)
+        if(s == null){
             return new JSONArray();
+        }
         String[] cols = s.trim().split("\\s+");
         JSONArray arr = new JSONArray(Arrays.asList(cols));
         return arr;
