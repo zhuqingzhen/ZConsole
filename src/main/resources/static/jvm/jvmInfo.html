@@ -67,7 +67,12 @@ function showOperatingSystem(){
 				.append($("<td>").append(bytesToSize(result.freePhysicalMemorySize))));
 		operatingSystem.append($("<tr>")
 				.append($("<td>").append("物理交换区"))
-				.append($("<td>").append(bytesToSize(result.totalSwapSpaceSize))));
+				.append(
+					$("<td>").append(
+							bytesToSize(result.totalSwapSpaceSize)+ "" + (result.freeSwapSpaceSize==0?"（请确认服务器是否启用交换区）":"")
+						)
+				)
+		);
 		operatingSystem.append($("<tr>")
 				.append($("<td>").append("空闲交换区"))
 				.append($("<td>").append(bytesToSize(result.freeSwapSpaceSize))));
