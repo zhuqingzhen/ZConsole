@@ -7,8 +7,12 @@ management:
     enabled:false
 server:
   port: 8080
+  tomcat:
+    max-threads:800
+    uri-encoding:UTF-8
+    access-log-enabled:true
 logging:
-  #logback日志目录
-  path: c:/logs
-  file: myapp.log
+  #logback log dir
+  path: /opt
+  file: zconsole.log
   level.*: DEBUG

@@ -77,7 +77,7 @@ public class JvmJmxController {
 	@RequestMapping("/tree/nodeInfo")
 	public MBeanInfo getMBeanInfo(
 			@RequestParam(name="jvmId") long jvmId,
-			@RequestParam(name="jvmId") String objectName
+			@RequestParam(name="objectName") String objectName
 			) throws Exception {
 		return jvmJmxService.getMBeanInfo(jvmId, objectName);
 	}
