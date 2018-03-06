@@ -50,7 +50,7 @@ td{word-break: break-all; word-wrap:break-word;}
 			tr.append($("<td>").append(jvm.id));
 			tr.append(
 				$("<td>").append(
-					jvm.name=="com.zqz.Bootstart"?jvm.name+"<span style=color:#f00>(当前应用)</span>":jvm.name
+					jvm.name=="com.zqz.Bootstart"||jvm.name.indexOf("zconsole-")>-1?jvm.name+"<span style=color:#f00>(当前应用)</span>":jvm.name
 				)
 			);
 			var operation = $("<td>");

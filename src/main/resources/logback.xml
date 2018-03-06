@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-	<property name="LOG_HOME" value="c:/logs" />
-	<property name="HISTORY_LOG_HOME" value="c:/logs/history_logs" />
+	<property name="LOG_HOME" value="./logs" />
+	<property name="HISTORY_LOG_HOME" value="./logs/history_logs" />
 	
 	<appender name="infoLog"
 		class="ch.qos.logback.core.rolling.RollingFileAppender">
 		<file>${LOG_HOME}/ty-report.log</file>
 		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-			<fileNamePattern>${HISTORY_LOG_HOME}/ty-report.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+			<fileNamePattern>${HISTORY_LOG_HOME}/zconsole-info.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
 			<maxHistory>30</maxHistory>
 			<maxFileSize>200MB</maxFileSize>
 			<totalSizeCap>20GB</totalSizeCap>
@@ -22,7 +22,7 @@
 		class="ch.qos.logback.core.rolling.RollingFileAppender">
 		<file>${LOG_HOME}/ty-report-error.log</file>
 		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-			<fileNamePattern>${HISTORY_LOG_HOME}/ty-report-error.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+			<fileNamePattern>${HISTORY_LOG_HOME}/zconsole-error.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
 			<maxHistory>30</maxHistory>
 			<maxFileSize>200MB</maxFileSize>
 			<totalSizeCap>20GB</totalSizeCap>

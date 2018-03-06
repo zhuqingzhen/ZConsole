@@ -4,15 +4,16 @@ static-locations: classpath:/static/,classpath:/views/templates
 cache-period: 0
 management:
   security:
-    enabled:false
+    enabled: false
 server:
   port: 8080
+  session-timeout: 30
   tomcat:
-    max-threads:800
-    uri-encoding:UTF-8
-    access-log-enabled:true
+    max-threads: 800
+    uri-encoding: UTF-8
+    access-log-enabled: true
 logging:
   #logback log dir
-  path: /opt
+  path: /opt/zconsole
   file: zconsole.log
   level.*: DEBUG
