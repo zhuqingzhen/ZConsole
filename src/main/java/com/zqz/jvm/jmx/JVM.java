@@ -458,6 +458,13 @@ public class JVM {
 		String[] Name = ((String) MBeanUtil.getObjectNameValue(objectName, "Name", this)).split("@");
 		runtime.setPid(Name[0]);
 		runtime.setHostName(Name[1]);
+		
+		Map<String, Object> result = MBeanUtil.getHotSpotVmOption(this,"ThreadStackSize");
+		long threadStackSize = -1;
+		if(result!=null){
+			threadStackSize = Long.valueOf(String.valueOf(result.get("value")));
+		}
+		runtime.setThreadStackSize(threadStackSize);
 		return runtime;
 	}
 	

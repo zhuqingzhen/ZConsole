@@ -113,6 +113,43 @@ function showRuntime(){
 			    .append($("<td>").append("jvm版本"))
 			    .append($("<td>").append(result.vmName+"_"+result.specVersion+"_"+result.vmVersion
 				)));
+		if(result.threadStackSize == 0){
+			//见openjdk\hotspot\src\os_cpu\linux_x86\vm\os_linux_x86.cpp 方法 default_stack_size
+			/**
+			size_t os::Linux::default_stack_size(os::ThreadType thr_type) {
+  				// default stack size (compiler thread needs larger stack)
+				#ifdef AMD64
+	  				size_t s = (thr_type == os::compiler_thread ? 4 * M : 1 * M);
+				#else
+  					size_t s = (thr_type == os::compiler_thread ? 2 * M : 512 * K);
+				#endif // AMD64
+  				return s;
+			}
+			**/
+			if(result.specVersion=="1.8" || result.specVersion=="1.7" || result.specVersion=="1.6"){
+				if(result.systemProperties["os.arch"].toLowerCase()== amd64){
+					result.threadStackSize = 1024;
+				}else{
+					result.threadStackSize = 512;
+				}
+			}else if(result.specVersion=="9"){
+				//见openjdk9\hotspot\src\os_cpu\linux_aarch64\vm\os_linux_aarch64.cpp 方法 default_stack_size
+				/**
+				// return default stack size for thr_type
+				size_t os::Linux::default_stack_size(os::ThreadType thr_type) {
+  					// default stack size (compiler thread needs larger stack)
+  					size_t s = (thr_type == os::compiler_thread ? 4 * M : 1 * M);
+  					return s;
+				}
+				**/
+				result.threadStackSize = 1024;
+			}else{//jdk1.6以下版本不管了，jdk9发布了，jdk10都快出来了，这样的公司赶快离职吧！！！！
+				result.threadStackSize = -1
+			}
+		}
+		runtime.append($("<tr>")
+			    .append($("<td>").append("Xss"))
+			    .append($("<td>").append(result.threadStackSize+"kb")));
 		runtime.append($("<tr>")
 			    .append($("<td>").append("java home"))
 			    .append($("<td>").append(result.systemProperties["java.home"])));

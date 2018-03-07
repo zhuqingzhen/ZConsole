@@ -35,8 +35,16 @@ public class RuntimeInfo {
 	private String pid;
 	/**hostName Name值@后面的部分**/
 	private String hostName;
+	/**线程栈大小**/
+	private long threadStackSize;
 	
 	
+	public long getThreadStackSize() {
+		return threadStackSize;
+	}
+	public void setThreadStackSize(long threadStackSize) {
+		this.threadStackSize = threadStackSize;
+	}
 	public long getStartTime() {
 		return StartTime;
 	}
