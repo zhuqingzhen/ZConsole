@@ -1,0 +1,11 @@
+body>.container{padding-bottom:50px;}
+body>.container>.footer{
+	background:rgba(230, 230, 230, 0.7) none repeat scroll 0 0 !important;/*firefox*/
+	background:#F5F5F5 8;/*CSS Hack,ie9 ie6,ie7,ie8 ie10,FF,Cherome*/  
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#bf3a220b,endColorstr=#bf3a220b);
+	-moz-box-shadow: 0 -1px 2px rgba(255, 255, 255, 0.55);
+	-webkit-box-shadow: 0 -1px 2px rgba(255, 255, 255, 0.55);
+	box-shadow: 0 -1px 2px rgba(255, 255, 255, 0.55);
+	height:30px;
+	line-height:30px;
+}
