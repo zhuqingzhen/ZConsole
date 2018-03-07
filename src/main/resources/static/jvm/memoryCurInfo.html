@@ -27,6 +27,11 @@
 					<td></td><td>used</td><td>commit</td><td>max</td><td>init</td>
 				</tr>
 			</table>
+			<div>heapMemory = oldGen + edenSpace + survivorSpace</div>
+			<div>nonHeapMemory = metaspace + compressedClassSpace + codecache</div>
+			<div>线程占用操作系统内存大小 =线程数*线程栈大小  ；</div>
+			<div>还有直接内存的占用的操作系统内存大小</div>
+			<div>以上加起来就是jvm进程占用的内存大小</div>
 		</div>
 		</div>
 		<div class="row">
