@@ -180,7 +180,6 @@ $("#dumpThread").click(function(){
 						.append($("<span>",{"class":"threadName_tid"}).append(result[i].threadId)))
 						.append($("<span>").append(result[i].threadName));
 		}
-		console.log(locksMap);
 		showThreadList();
 		sortThreadLock();
 		showLockList();
@@ -272,7 +271,6 @@ function buildLockCache(threadStack){
 		}
 		info.wait.push(threadStack.threadId);
 	}
-	console.log(locksMap);
 }
 
 
@@ -346,7 +344,6 @@ $("#lockLeft").on("click", ".lockItem", function() {
 	$("#lockLeft .current").removeClass("current");
 	$(this).addClass("current");
 	lockRight.empty();
-	console.log(locksMap[$(this).attr("code")]);
 	showLockInfo(locksMap[$(this).attr("code")]);
 });
 
