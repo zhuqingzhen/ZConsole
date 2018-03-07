@@ -154,7 +154,8 @@ vertical-align: middle;
 
 		function showJvmToList(jvm) {
 			var tr = $("<tr>");
-			tr.append($("<td>").append(jvm.id));
+			var isLocal = jvm.id.startWith("-")?"&nbsp;&nbsp;[本地进程]":"";
+			tr.append($("<td>").append(jvm.id+isLocal));
 			if (jvm.name.length > 50) {
 				tr.append($("<td>", {
 					"title" : jvm.name
