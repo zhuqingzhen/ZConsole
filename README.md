@@ -35,6 +35,8 @@ ZConsole是一个通过jmx管理jvm、排查jvm问题的web应用。
 运行环境：
 jdk1.8，依赖jdk的lib目录下的tool.jar；
 
+详情见/doc/publish/readme文件说明；
+
 ## java服务器端配置
 远程连接jvm，java启动时加上如下参数：
 ```
