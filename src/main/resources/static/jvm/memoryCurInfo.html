@@ -17,23 +17,35 @@
 		height:400px;
 		display:inline-block;
 	}
+	.container{
+		marign:16px;
+		padding:16px;
+	}
 </style>
 </head>
 <body>
-	<div class="container" style="width:100%">
+<input id="myFocus" style="width:0px;height:0px;margin-left:-100px;">
+	<div class="container" style="width:98%">
 		<div class="row">
-		指标刷新间隔：<input type="text" maxlength=3 id="interval" value=3 style="width:30px;"/>秒
 		<div>
+			<b style="font-size:16px;line-height:30px;">指标刷新间隔：<input type="text" maxlength=3 id="interval" value=3 style="width:30px;"/>秒</b>
+		</div>
+		<div>
+			<div style="float:left;width:500px;">
 			<table  class="table table-striped  table-hover" id="memoryInfoTable" style="width:500px;">
 				<tr>
 					<td></td><td>used</td><td>commit</td><td>max</td><td>init</td>
 				</tr>
 			</table>
-			<div>heapMemory = oldGen + edenSpace + survivorSpace</div>
-			<div>nonHeapMemory = metaspace + compressedClassSpace + codecache</div>
-			<div>线程占用操作系统内存大小 =线程数*线程栈大小  ；</div>
-			<div>还有直接内存的占用的操作系统内存大小</div>
-			<div>以上加起来就是jvm进程占用的内存大小</div>
+			</div>
+			<div style="float:left;width:500px;margin-left:20px;font-size:14px;line-height:25px;">
+				<b>内存计算说明</b>
+				<div>1、heapMemory = oldGen + edenSpace + survivorSpace；</div>
+				<div>2、nonHeapMemory = metaspace + compressedClassSpace + codecache；</div>
+				<div>3、线程占用操作系统内存大小 =线程数*线程栈大小  ；</div>
+				<div>4、直接内存的占用的操作系统内存大小；</div>
+				<div>以上加起来就是jvm进程占用的内存大小</div>
+			</div>
 		</div>
 		</div>
 		<div class="row">
@@ -55,20 +67,23 @@
 		var curInterval = 3;
 		var re = /^[0-9]+$/ ;
 		$("#interval").blur(function(){
-			var thisval = $(this).val();
-			if(re.test(thisval)){
-				if(thisval>0 && thisval<=60){
-					curInterval = thisval;
-					alert("当前指标刷新间隔为"+thisval+"秒")
-					return;
+				$("#myFocus").focus();
+				var thisval = $(this).val();
+				if(re.test(thisval)){
+					if(thisval>0 && thisval<=60){
+						curInterval = thisval;
+						alert("当前指标刷新间隔为"+thisval+"秒")
+						return;
+					}else{
+						 $(this).val(curInterval);
+					}
 				}else{
-					 $(this).val(curInterval);
+					$(this).val(curInterval);
 				}
-			}else{
-				$(this).val(curInterval);
-			}
-			alert("请输入大于0小于等于60的值");
+				alert("请输入大于0小于等于60的值");
 		})
+			
+		
 		$(document).ready(
 				function() {
 					Highcharts.setOptions({
