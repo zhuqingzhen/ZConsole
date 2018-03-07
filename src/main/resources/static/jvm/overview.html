@@ -95,6 +95,13 @@
 			}
 			alert("请输入大于0小于等于60的值");
 		})
+		
+		$("#interval").keyup(function(event){
+  			if(event.keyCode ==13){
+    			$(this).trigger("blur");
+  			}
+		});
+		
 		$(document).ready(
 				function() {
 					Highcharts.setOptions({
