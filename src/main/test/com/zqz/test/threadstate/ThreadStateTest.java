@@ -5,8 +5,6 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.LockSupport;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.junit.Test;
-
 /**
  * 各种锁线程栈
  * @author zqz
@@ -20,7 +18,6 @@ public class ThreadStateTest {
 	Lock rtlock2 = new ReentrantLock();
 	Condition  condition = rtlock2.newCondition();
 	
-	@Test
 	public void main() throws InterruptedException {
 		ThreadStateTest twm = new ThreadStateTest();
 		System.out.println(twm.lock.hashCode());
