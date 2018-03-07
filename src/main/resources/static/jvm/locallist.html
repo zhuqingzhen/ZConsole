@@ -74,7 +74,6 @@ td{word-break: break-all; word-wrap:break-word;}
 			var self = $(this)
 			$.post("/jvm/localvm/add.json",{"jvmId":self.attr("jvmId")}, function(result) {
 				if(result=="true"){
-					console.log($("#addLocalJVMDialog").get(0));
 					alert("添加成功!")
 					location.reload();
 				}
