@@ -129,7 +129,6 @@
 	</script>
 	<script type="text/javascript">
 		var container = $("#jvms");
-
 		function show() {
 			$.post("/jvm/getJVMList.json", {}, function(result) {
 				if(result!=""){
@@ -160,7 +159,8 @@
 					href : "#",
 					role : "button",
 					jvmId : jvm.id,
-					name : jvm.name
+					name : jvm.name,
+					os : jvm.os
 				}).append("info"));
 				
 				operation.append($("<a>", {
@@ -244,6 +244,7 @@
 			jvm.name = $("#jvm_name").val();
 			$.post("/jvm/add.json", jvm, function(result) {
 				if (result != null) {
+					osVersion = result.os;
 					showJvmToList(result);
 					$("#addRemoteJvm").modal('hide');
 				}
@@ -262,7 +263,7 @@
 		});
 		
 		$(".container").on("click", ".infoBtn", function() {
-			window.open("jvmInfo.html?id=" + $(this).attr("jvmId"));
+			window.open("jvmInfo.html?id=" + $(this).attr("jvmId")+"&os="+$(this).attr("os"));
 		});
 		
 		$(".container").on("click", ".threadBtn", function() {

@@ -244,7 +244,9 @@ function formatDuring(mss) {
  * @param bytes
  * @returns {String}
  */
-function bytesToSize(bytes) {  
+function bytesToSize(bytes) {
+	if(bytes < 0)
+		return bytes
     if (bytes === 0) return '0 B';  
     	var k = 1024;  
     	sizes = ['B','KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];  

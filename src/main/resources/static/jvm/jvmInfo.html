@@ -43,6 +43,8 @@ td{word-break: break-all; word-wrap:break-word;}
 <script src="../static/bootstrap/js/bootstrap.min.js"></script>
 <script type="text/javascript">
 var jvmId = gerUrlParam("id");
+var os = gerUrlParam("os");
+var splitFlag = os.toLowerCase().startWith("win")?";":":";
 var runtime = $("#runtime");
 var operatingSystem = $("#operatingSystem");
 function showOperatingSystem(){
@@ -112,6 +114,9 @@ function showRuntime(){
 			    .append($("<td>").append(result.vmName+"_"+result.specVersion+"_"+result.vmVersion
 				)));
 		runtime.append($("<tr>")
+			    .append($("<td>").append("java home"))
+			    .append($("<td>").append(result.systemProperties["java.home"])));
+		runtime.append($("<tr>")
 			    .append($("<td>").append("启动时间"))
 			    .append($("<td>").append(new Date(result.startTime).format("yyyy-MM-dd hh:mm:ss")
 				)));
@@ -119,7 +124,6 @@ function showRuntime(){
 			    .append($("<td>").append("运行时间"))
 			    .append($("<td>").append(formatDuring(result.uptime)
 				)));
-		
 		runtime.append($("<tr>")
 			    .append($("<td>").append("启动参数"))
 			    .append($("<td>").append((function() {
@@ -132,25 +136,59 @@ function showRuntime(){
 					})()
 				)));
 		
+		
 		runtime.append($("<tr>")
 			    .append($("<td>").append("应用目录"))
 			    .append($("<td>").append(result.systemProperties["user.dir"])));
 		var dumpPath=$("<div>");
 		runtime.append($("<tr>")
 			    .append($("<td>").append("APP classpath"))
-			    .append($("<td>").append(result.classPath
+			    .append($("<td>").append(
+			    	(function() {
+						var container =$("<span>");
+					    var source =  result.classPath.split(splitFlag);
+						for(var i in source){
+							container.append($("<div>").append(source[i]));
+						}
+						return container;
+					})()
 				)));
 		runtime.append($("<tr>")
 			    .append($("<td>").append("EXT classpath"))
-			    .append($("<td>").append(result.systemProperties["java.ext.dirs"])));
+			    .append($("<td>").append(
+			    		(function() {
+							var container =$("<span>");
+						    var source =  result.systemProperties["java.ext.dirs"].split(splitFlag);
+							for(var i in source){
+								container.append($("<div>").append(source[i]));
+							}
+							return container;
+						})()
+			    )));
 		runtime.append($("<tr>")
 			    .append($("<td>").append("BOOT classpath"))
-			    .append($("<td>").append(result.bootClassPath
+			    .append($("<td>").append(
+			    		(function() {
+							var container =$("<span>");
+						    var source =  result.bootClassPath.split(splitFlag);
+							for(var i in source){
+								container.append($("<div>").append(source[i]));
+							}
+							return container;
+						})()
 				)));
 		
 		runtime.append($("<tr>")
 			    .append($("<td>").append("library Path"))
-			    .append($("<td>").append(result.libraryPath
+			    .append($("<td>").append(
+			    		(function() {
+							var container =$("<span>");
+						    var source =  result.libraryPath.split(splitFlag);
+							for(var i in source){
+								container.append($("<div>").append(source[i]));
+							}
+							return container;
+						})()
 				)));
 		runtime.append($("<tr>")
 			    .append($("<td>").append("堆dump目录"))

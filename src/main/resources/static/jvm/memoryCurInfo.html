@@ -21,6 +21,13 @@
 	<div class="container" style="width:100%">
 		<div class="row">
 		指标刷新间隔：<input type="text" maxlength=3 id="interval" value=3 style="width:30px;"/>秒
+		<div>
+			<table  class="table table-striped  table-hover" id="memoryInfoTable" style="width:500px;">
+				<tr>
+					<td></td><td>used</td><td>commit</td><td>max</td><td>init</td>
+				</tr>
+			</table>
+		</div>
 		</div>
 		<div class="row">
 			<div id = "charts" class="col-xs-12 col-md-12">
@@ -232,8 +239,22 @@
 					
 					
 					function createChart(data){
+						var memoryInfoTable = $("#memoryInfoTable");
 						for(var item in data){
 							if(data[item]!=null){
+								memoryInfoTable.append(
+								   $("<tr>").append(
+										$("<td>").append(item)
+									).append(
+										$("<td>",{"id":item+"Used"})
+									).append(
+										$("<td>",{"id":item+"Commit"})
+									).append(
+										$("<td>",{"id":item+"Max"})
+									).append(
+										$("<td>",{"id":item+"Init"})
+									)
+								);
 								$("#charts").append($("<div>",{"id":item,"class":"memoryChart"}))
 								option.title.text = item;
 								option.chart.renderTo = item;
@@ -246,6 +267,10 @@
 						var x = (new Date()).getTime();
 						for(var item in data){
 							if(data[item]!=null){
+								$("#"+item+"Commit").empty().append(bytesToSize(data[item].committed));
+								$("#"+item+"Used").empty().append(bytesToSize(data[item].used));
+								$("#"+item+"Max").empty().append(bytesToSize(data[item].max));
+								$("#"+item+"Init").empty().append(bytesToSize(data[item].init));
 								charts[item].series[0].addPoint([x,data[item].max],true,true);
 								charts[item].series[1].addPoint([x,data[item].init],true,true);
 								charts[item].series[2].addPoint([x,data[item].committed],true,true);
