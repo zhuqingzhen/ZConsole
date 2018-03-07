@@ -1,0 +1,15 @@
+部署方式使用方式：
+1.使用mvn package 打包项目
+
+2.将打包后的jar文件放到当前目录，如包名为zconsole-0.0.1-SNAPSHOT.jar，则目录结构为：
+/lib
+/readme
+/startup.sh
+/zconsole-0.0.1-SNAPSHOT.jar
+
+3.打开startup.sh文件修改-jar后的jar包名称为zconsole-0.0.1-SNAPSHOT.jar
+
+4.执行sh startup.sh运行项目；
+
+
+
