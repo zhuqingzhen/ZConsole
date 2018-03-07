@@ -55,7 +55,6 @@ var runtime = $("#runtime");
 var operatingSystem = $("#operatingSystem");
 function showOperatingSystem(){
 	$.post("/jmx/operatingSystem.json?jvmId="+jvmId, {}, function(result) {
-		console.log(result);
 		operatingSystem.append($("<tr>")
 				.append($("<td>").append("操作系统"))
 				.append($("<td>").append(result.name+" "+result.version)));
@@ -133,7 +132,7 @@ function showRuntime(){
 			}
 			**/
 			if(result.specVersion=="1.8" || result.specVersion=="1.7" || result.specVersion=="1.6"){
-				if(result.systemProperties["os.arch"].toLowerCase()== amd64){
+				if(result.systemProperties["os.arch"].toLowerCase()== "amd64"){
 					result.threadStackSize = 1024;
 				}else{
 					result.threadStackSize = 512;
@@ -254,7 +253,6 @@ function showRuntime(){
 			runtime.append($("<tr>").append(hotSpotDiagnosticTitle).append(hotSpotDiagnosticValue));
 			$.post("/jmx//hotSpotDiagnostic.json?jvmId="+jvmId, {}, function(result1) {
 				if (result1.code == 1 && result1.data != null) {
-					console.log(result1.data);
 					hotSpotDiagnosticTitle.append("诊断参数");
 					for(var i in result1.data){
 						if(result1.data[i].name=="HeapDumpPath"){
