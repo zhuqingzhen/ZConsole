@@ -40,7 +40,7 @@ vertical-align: middle;
 			<tr>
 				<td style="width:135px;width:170px;">id</td>
 				<td>名称</td>
-				<td style="width:250px;">任务</td>
+				<td style="width:250px;">定时任务</td>
 				<td style="width:70px;">jxm连接</td>
 				<td style="width:400px;">操作</td>
 			</tr>
@@ -163,7 +163,7 @@ vertical-align: middle;
 			} else {
 				tr.append($("<td>").append(jvm.name+" ("+jvm.os+"－jdk"+jvm.jdk+")"));
 			}
-			tr.append($("<td>").append(jvm.taskNames));
+			tr.append($("<td>").append(jvm.taskNames==null?"无":jvm.taskNames));
 			tr.append($("<td>").append(jvm.connected ? "正常" : "断开"));
 			var operation = $("<td>");
 			if (jvm.connected) {
