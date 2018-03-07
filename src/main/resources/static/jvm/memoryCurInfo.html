@@ -121,27 +121,8 @@
 							tickPixelInterval : 60,
 							minRange:360000
 						},
-						yAxis : [ {
-							title : {
-								text : null
-							//'max'
-							},
-							plotLines : [ {
-								value : 0,
-								width : 1,
-								color : '#808080'
-							} ]
-						}, {
-							title : {
-								text : null
-							//'init'
-							},
-							plotLines : [ {
-								value : 0,
-								width : 1,
-								color : '#808080'
-							} ]
-						}, {
+						yAxis : [
+						  {
 							title : {
 								text : null
 							//'commit'
@@ -185,34 +166,6 @@
 							enabled : false
 						},
 						series : [
-								{
-									name : 'max',
-									data : (function() { // generate an array of random data                             
-										var data = [], time = (new Date())
-												.getTime(), i;
-										for (i = -360; i <= 0; i++) {
-											data.push({
-												x : time + i * 1000,
-												y : 0
-											});
-										}
-										return data;
-									})()
-								},
-								{
-									name : 'init',
-									data : (function() { // generate an array of random data                             
-										var data = [], time = (new Date())
-												.getTime(), i;
-										for (i = -360; i <= 0; i++) {
-											data.push({
-												x : time + i * 1000,
-												y : 0
-											});
-										}
-										return data;
-									})()
-								},
 								{
 									name : 'commit',
 									data : (function() { // generate an array of random data                             
@@ -304,10 +257,8 @@
 								$("#"+item+"Used").empty().append(bytesToSize(data[item].used));
 								$("#"+item+"Max").empty().append(bytesToSize(data[item].max));
 								$("#"+item+"Init").empty().append(bytesToSize(data[item].init));
-								charts[item].series[0].addPoint([x,data[item].max],true,true);
-								charts[item].series[1].addPoint([x,data[item].init],true,true);
-								charts[item].series[2].addPoint([x,data[item].committed],true,true);
-								charts[item].series[3].addPoint([x,data[item].used],true,true);
+								charts[item].series[0].addPoint([x,data[item].committed],true,true);
+								charts[item].series[1].addPoint([x,data[item].used],true,true);
 							}
 						}
 					}
