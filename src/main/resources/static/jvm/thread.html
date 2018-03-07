@@ -104,7 +104,7 @@
     			<div role="tabpanel" class="tab-pane" id="threadLockPanel">
     				<div class="col-md-12">
     					<p>格式：等待锁线程数量--锁类型--锁id</p>
-    					<p>锁类型：M：synchronized锁;&nbsp;&nbsp; R：可重入锁; &nbsp;&nbsp;P：LockSupport.park(); &nbsp;&nbsp;N：未知<p>
+    					<p>锁类型：SYN：synchronized锁;&nbsp;&nbsp; AQS：AbstractQueuedSynchronizer锁; &nbsp;&nbsp;LSP：LockSupport.park(); &nbsp;&nbsp;N：未知<p>
     				</div>
     				<div class="col-md-3" id ="lockLeft">
   					</div>
@@ -192,21 +192,21 @@ function getLockType(threadStack){
 	if(threadStack.lockInfo.className == aqsCondition 
 		|| threadStack.lockInfo.className.startWith(reenTrantLock)	
 		){
-		type="R";
+		type="AQS";
 	}else if(threadStack.stackTrace.length>0){
 		//监视器
 		if( threadStack.stackTrace[0].className == classObject
 			&& threadStack.stackTrace[0].methodName == "wait" 
 			&& threadStack.stackTrace[0].nativeMethod == true
 				){
-				type="M";
+				type="SYN";
 		//park
 		}else if(
 			(threadStack.stackTrace[0].className==classUnsafe || threadStack.stackTrace[0].className==classUnsafe9)
 			&& threadStack.stackTrace[0].methodName == "park" 
 			&& threadStack.stackTrace[0].nativeMethod == true
 			){
-				type="P";
+				type="LSP";
 		}
 	}
 	return type;
@@ -221,14 +221,14 @@ function buildLockCache(threadStack){
 		for(var m=0,n=tmp.length;m<n;m++){
 			if(locksMap[tmp[m].identityHashCode]!=undefined){
 				locksMap[tmp[m].identityHashCode].lock=threadStack.threadId;
-				locksMap[tmp[m].identityHashCode].lockType="M";
+				locksMap[tmp[m].identityHashCode].lockType="SYN";
 				locksMap[tmp[m].identityHashCode].code=tmp[m].identityHashCode;
 			}else{
 				locksMap[tmp[m].identityHashCode]={
 					"code":tmp[m].identityHashCode,
 					"lock":threadStack.threadId,
 					"wait":[],
-					"lockType":"M"
+					"lockType":"SYN"
 				}
 			}
 		}
@@ -238,14 +238,14 @@ function buildLockCache(threadStack){
 		for(var m=0,n=tmp.length;m<n;m++){
 			if(locksMap[tmp[m].identityHashCode]!=undefined){
 				locksMap[tmp[m].identityHashCode].lock=threadStack.threadId;
-				locksMap[tmp[m].identityHashCode].lockType="R";
+				locksMap[tmp[m].identityHashCode].lockType="AQS";
 				locksMap[tmp[m].identityHashCode].code=tmp[m].identityHashCode;
 			}else{
 				locksMap[tmp[m].identityHashCode]={
 					"code":tmp[m].identityHashCode,
 					"lock":threadStack.threadId,
 					"wait":[],
-					"lockType":"R"
+					"lockType":"AQS"
 				}
 			}
 		}
