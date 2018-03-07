@@ -69,7 +69,6 @@ td{word-break: break-all; word-wrap:break-word;}
 			isClick = false;
 			printLockContainer.empty().append("正在导出，请等待！");
 			if (result.code == 1 && result.data != null) {
-				console.log(result.data);
 				printLockContainer.empty().append(result.data);
 			}
 		});

@@ -72,7 +72,6 @@ td{word-break: break-all; word-wrap:break-word;}
 			isClick = false;
 			classesHistogram.empty().append("正在导出，请稍后！");
 			if (result.code == 1 && result.data != null) {
-				console.log(result.data);
 				classesHistogram.empty().append(result.data);
 			}
 		});

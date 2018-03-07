@@ -60,7 +60,6 @@
         		 //订阅
                 stompClient.subscribe('/user/' + userId + '/msg', function(respnose){
                 	var data = JSON.parse(respnose.body);
-                    console.log(respnose.body);
                     var tr= $("<tr>");
                     tr.append($("<td>").append(data.timeStamp));
                     tr.append($("<td>").append(data.type));
