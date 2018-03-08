@@ -322,4 +322,15 @@ public class JvmJmxController {
 			) throws Exception{
 		return new ReponseMessage(ReponseMessage.SUCCESS, jvmJmxService.threadPrint(jvmId,printLock));
 	}
+	
+	/**
+	 * gc 次数和时间信息
+	 * @param jvmId
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value="/gcInfo")
+	public ReponseMessage getGCInfo(@RequestParam(name="jvmId") long jvmId) throws Exception{
+		return new ReponseMessage(ReponseMessage.SUCCESS, jvmJmxService.getGCInfo(jvmId));
+	}
 }

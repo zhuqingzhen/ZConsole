@@ -448,5 +448,28 @@ public class JvmJmxService {
 		}
 		return MBeanUtil.threadPrint(jvm, printLock);
 	}
+	
+	/**
+	 * gc 次数和时间信息
+	 * @param jvmId
+	 * @return
+	 * @throws Exception
+	 */
+	public Map<String,Object> getGCInfo(long jvmId) throws Exception{
+		JVM jvm = JVMManager.get(jvmId);
+		if (jvm == null) {
+			return null;
+		}
+		ObjectName ygc = jvm.getYGCName();
+		ObjectName fgc = jvm.getFullGCName();
+		Map<String,Object> result = new HashMap<String,Object>();
+		result.put("ygcCount", MBeanUtil.getLong(ygc, "CollectionCount", jvm));
+		result.put("ygcTime", MBeanUtil.getLong(ygc, "CollectionTime", jvm));
+		result.put("ygcName", ygc.getKeyProperty("name"));
+		result.put("fgcCount", MBeanUtil.getLong(fgc, "CollectionCount", jvm));
+		result.put("fgcTime", MBeanUtil.getLong(fgc, "CollectionTime", jvm));
+		result.put("fgcName", fgc.getKeyProperty("name"));
+		return result;
+	}
 
 }
