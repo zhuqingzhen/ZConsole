@@ -9,7 +9,9 @@
 
 3.打开startup.sh文件修改-jar后的jar包名称为zconsole-0.0.1-SNAPSHOT.jar
 
-4.执行sh startup.sh运行项目；
+4.执行sh startup.sh运行项目； 
+
+注意：如果不是通过远程方式监控，监控本地jvm时，启动ZConsole的用户必须与被监控的jvm进程启动用户相同，否则会看不到被监控的应用
 
 
 
