@@ -262,7 +262,7 @@
 					};
 					
 					function initChart(){
-						$.post("/memory/chart/curInfo.json", {
+						$.post("/ZConsole/memory/chart/curInfo.json", {
 							"jvmId" : jvmId
 						}, function(result) {
 							if (result.code == 1 && result.data != null) {
@@ -270,7 +270,7 @@
 								createChart(data);
 								var memoryInfo = setTimeout(function() {
 									var arg = arguments.callee;
-									$.post("/memory/chart/curInfo.json", {
+									$.post("/ZConsole/memory/chart/curInfo.json", {
 										"jvmId" : jvmId
 									}, function(result) {
 										if (result.code == 1 && result.data != null) {
@@ -331,7 +331,7 @@
 					
 					var getGcInfo = setTimeout(function() {
 						var arg = arguments.callee;
-						$.post("/jmx/gcInfo.json", {
+						$.post("/ZConsole/jmx/gcInfo.json", {
 							"jvmId" : jvmId
 						}, function(result) {
 							if (result.code == 1 && result.data != null) {

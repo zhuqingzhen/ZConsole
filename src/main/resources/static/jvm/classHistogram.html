@@ -69,7 +69,7 @@
 			return;
 		}
 		isClick = true;
-		$.post("/jmx/gcClassHistogram.json", {"jvmId":jvmId,"all":includeUnreachable}, function(result) {
+		$.post("/ZConsole/jmx/gcClassHistogram.json", {"jvmId":jvmId,"all":includeUnreachable}, function(result) {
 			isClick = false;
 			classesHistogram.empty().append("正在导出，请稍后！");
 			if (result.code == 1 && result.data != null) {

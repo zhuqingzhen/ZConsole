@@ -64,7 +64,7 @@ td{word-break: break-all; word-wrap:break-word;}
 			return;
 		}
 		isClick = true;
-		$.post("/jmx/threadPrint.json", {"jvmId":jvmId,"printLock":printLock}, function(result) {
+		$.post("/ZConsole/jmx/threadPrint.json", {"jvmId":jvmId,"printLock":printLock}, function(result) {
 			isClick = false;
 			printLockContainer.empty().append("正在导出，请等待！");
 			if (result.code == 1 && result.data != null) {
@@ -72,9 +72,6 @@ td{word-break: break-all; word-wrap:break-word;}
 			}
 		});
 	});
-	
-	
-			
 	
 </script>
 </body>

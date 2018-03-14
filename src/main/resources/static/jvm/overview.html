@@ -192,14 +192,14 @@
 					};
 					var version = null;
 					function initChart(){
-						$.post("/jvm/version.json", {
+						$.post("/ZConsole/jvm/version.json", {
 							"jvmId" : jvmId
 						}, function(result) {
 							version = result;
 							createChart(result);
 							var getCPUInfo = setTimeout(function() {
 								var arg = arguments.callee;
-								$.post("/jmx/cpuInfo.json", {
+								$.post("/ZConsole/jmx/cpuInfo.json", {
 									"jvmId" : jvmId
 								}, function(result) {
 									if (result.code == 1 && result.data != null) {
@@ -211,7 +211,7 @@
 							
 							var getThreadInfo = setTimeout(function() {
 								var arg = arguments.callee;
-								$.post("/jmx/threadInfo.json", {
+								$.post("/ZConsole/jmx/threadInfo.json", {
 									"jvmId" : jvmId
 								}, function(result) {
 									if (result.code == 1 && result.data != null) {
@@ -223,7 +223,7 @@
 							
 							var nioMemoryInfo = setTimeout(function() {
 								var arg = arguments.callee;
-								$.post("/jmx/nioMemory.json", {
+								$.post("/ZConsole/jmx/nioMemory.json", {
 									"jvmId" : jvmId
 								}, function(result) {
 									if (result.code == 1 && result.data != null) {

@@ -40,7 +40,7 @@ public class MBeanUtil {
 
 	/** 用于构造MBean树形菜单 **/
 	private final static String MBEAN_TREE_KEY_SPLIT = "####";
-	private final static String MBEAN_TREE_ATTRIBUTE_NODE_ICON = "/static/zTree_v3/css/zTreeStyle/img/diy/2.png";
+	private final static String MBEAN_TREE_ATTRIBUTE_NODE_ICON = "/ZConsole/static/zTree_v3/css/zTreeStyle/img/diy/2.png";
 
 	/**
 	 * 获取全部MXBean的Domains

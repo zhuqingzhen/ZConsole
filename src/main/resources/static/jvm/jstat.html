@@ -88,7 +88,7 @@
 		},
 		// 获取操作名称到下拉列表
 		getOptions : function(){
-			$.get("/jstat/options",function(options){
+			$.get("/ZConsole/jstat/options",function(options){
 				var ul = $("#ul-options");
 				for(var i = 0; i< options.length; i++){
 					ul.append("<li><a href='javascript:jstat.setOption(\""+options[i]+"\")'>"+options[i]+"</a></li>");
@@ -111,7 +111,7 @@
 			var interval = jstat.getInterval();
 			var times = jstat.getTimes();
 			var vmid = jstat.jvmId;
-			return "/jstat/exec/"+option +"/" + -vmid + "/" + interval + "/" + times;
+			return "/ZConsole/jstat/exec/"+option +"/" + -vmid + "/" + interval + "/" + times;
 		},
 		// 保存的EventSource对象
 		source : null,

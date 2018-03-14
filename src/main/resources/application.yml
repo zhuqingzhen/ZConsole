@@ -6,6 +6,7 @@ management:
   security:
     enabled: false
 server:
+  context-path: /ZConsole
   port: 8080
   session-timeout: 30
   tomcat:

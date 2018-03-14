@@ -133,7 +133,7 @@ vertical-align: middle;
 	<script src="../static/js/util.js"></script>
 	<script type="text/javascript">
 		$("#addLocalJVMBtn").click(function() {
-			$.get("/jvm/locallist.html", {}, function(result) {
+			$.get("/ZConsole/jvm/locallist.html", {}, function(result) {
 				var container = $("#addLocalJVMDialog .modal-body");
 				container.empty();
 				container.append(result);
@@ -142,8 +142,9 @@ vertical-align: middle;
 	</script>
 	<script type="text/javascript">
 		var container = $("#jvms");
+		
 		function show() {
-			$.post("/jvm/getJVMList.json", {}, function(result) {
+			$.post("/ZConsole/jvm/getJVMList.json", {}, function(result) {
 				if(result!=""){
 					for ( var index in result) {
 						showJvmToList(result[index])
@@ -256,7 +257,7 @@ vertical-align: middle;
 			jvm.jmxUserName = $("#jvm_jmx_userName").val();
 			jvm.jmxPassword = $("#jvm_jmx_password").val();
 			jvm.name = $("#jvm_name").val();
-			$.post("/jvm/add.json", jvm, function(result) {
+			$.post("/ZConsole/jvm/add.json", jvm, function(result) {
 				if (result != null) {
 					osVersion = result.os;
 					showJvmToList(result);
@@ -302,7 +303,7 @@ vertical-align: middle;
 		
 		$(".container").on("click", ".deleteBtn", function() {
 			var self = $(this)
-			$.post("/jvm/delete/" + self.attr("jvmId"), {}, function(result) {
+			$.post("/ZConsole/jvm/delete/" + self.attr("jvmId"), {}, function(result) {
 				if (result != null) {
 					self.parent().parent().remove();
 				}

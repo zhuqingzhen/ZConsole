@@ -74,7 +74,7 @@
 					isClick = true;
 					if(treeNode.type==1){//获取Mbean节点的信息，包括其属性，方法和通知;
 						if(treeNode.children==null){
-							$.post("/jmx/tree/nodeInfo.json", {"jvmId":jvmId,"objectName":treeNode.objectName}, function(result) {
+							$.post("/ZConsole/jmx/tree/nodeInfo.json", {"jvmId":jvmId,"objectName":treeNode.objectName}, function(result) {
 								//console.log(JSON.stringify(result));
 								result.attributes.sort(treesortPolice);
 								result.operations.sort(treesortPolice);
@@ -88,16 +88,15 @@
 						}
 					}else if(treeNode.type == 2){//MBean--属性,获取全部属性节点的值；
 						var data = jmxInfoCache[treeNode.objectName].attributes;
-						info.empty();
 						var params={"objectName":treeNode.objectName,"jvmId":jvmId};
 						var attrNames = [];
 						for(var i = 0 ;i < data.length ;i++){
 							attrNames.push(data[i].name);
 						}
 						params.attrNames=attrNames
-						$.post("/jmx/tree/attribute/value", params, function(result) {
+						$.post("/ZConsole/jmx/tree/attribute/value", params, function(result) {
 							//console.log(JSON.stringify(result));
-							info.append($("<div>").append("~~~~~~~~~~~~属性值"));
+							info.empty().append($("<div>").append("~~~~~~~~~~~~属性值"));
 							for(var i = 0 ;i < data.length ;i++){
 								info.append($("<div>",{"class":"field"}).append("<span class=\"field_type\">"+data[i].type+"</span> <span class=\"field_name\">"+data[i].name+"</span>=<span class=\"field_value\">"+jsonFormatToHtml(JSON.stringify(result[data[i].name]))+"</span>"));
 							}
@@ -141,10 +140,10 @@
 								break;
 							}
 						}
-						info.empty();
 						var params={"objectName":treeNode.objectName,"jvmId":jvmId};
 						params.attrNames = [treeNode.name];
-						$.post("/jmx/tree/attribute/value", params, function(result) {
+						$.post("/ZConsole/jmx/tree/attribute/value", params, function(result) {
+							info.empty();
 							info.append($("<div>").append("~~~~~~~~~~~~属性值"));
 							info.append($("<div>").append(itemData.type+" "+itemData.name+"="+jsonFormatToHtml(JSON.stringify(result[itemData.name]))));
 							info.append($("<div>").append("~~~~~~~~~~~~MBeanAttributeInfo"));
@@ -283,14 +282,14 @@
 				methodParamType.push(paramType[i].type);
 			}
 			params["signature"]=methodParamType;
-			$.post("/jmx/tree/execute.json", params, function(result) {
+			$.post("/ZConsole/jmx/tree/execute.json", params, function(result) {
 				alert(jsonFormat(JSON.stringify(result)));
 			},"html");
 			
 		});
    	   
    		$(document).ready(function(){
-   			$.post("/jmx/tree.json", {"jvmId":jvmId}, function(result) {
+   			$.post("/ZConsole/jmx/tree.json", {"jvmId":jvmId}, function(result) {
 				zTreeObj = $.fn.zTree.init($("#"+treeName), setting, treeChildrenSort(result));
 			});
    		});

@@ -172,7 +172,7 @@ $("#dumpThread").click(function(){
 	}
 	isClick=true;
 	$(this).attr("disabled","disabled");
-	$.post("/jmx/dumpThread.json?lockedMonitors=true&lockedSynchronizers=true&jvmId="+jvmId, {}, function(result) {
+	$.post("/ZConsole/jmx/dumpThread.json?lockedMonitors=true&lockedSynchronizers=true&jvmId="+jvmId, {}, function(result) {
 		result.sort(threadNamePolice)
 		threadStackListCache = result;
 		for(var i =0;i<result.length;i++){

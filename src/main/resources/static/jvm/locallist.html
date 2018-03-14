@@ -40,7 +40,7 @@ td{word-break: break-all; word-wrap:break-word;}
 		var container = $("#localJvms");
 		var jvmListContainer = $("#jvms");
 		function show() {
-			$.post("/jvm/localvm/list.json", {}, function(result) {
+			$.post("/ZConsole/jvm/localvm/list.json", {}, function(result) {
 				for(var index in result){
 					showJvmToList(result[index]);
 				}
@@ -73,7 +73,7 @@ td{word-break: break-all; word-wrap:break-word;}
 		
 		$(".container").on("click",".monitorBtn",function(){
 			var self = $(this)
-			$.post("/jvm/localvm/add.json",{"jvmId":self.attr("jvmId")}, function(result) {
+			$.post("/ZConsole/jvm/localvm/add.json",{"jvmId":self.attr("jvmId")}, function(result) {
 				if(result=="true"){
 					alert("添加成功!")
 					location.reload();

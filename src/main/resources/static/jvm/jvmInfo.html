@@ -55,7 +55,7 @@ var splitFlag = os.toLowerCase().startWith("win")?";":":";
 var runtime = $("#runtime");
 var operatingSystem = $("#operatingSystem");
 function showOperatingSystem(){
-	$.post("/jmx/operatingSystem.json?jvmId="+jvmId, {}, function(result) {
+	$.post("/ZConsole/jmx/operatingSystem.json?jvmId="+jvmId, {}, function(result) {
 		operatingSystem.append($("<tr>")
 				.append($("<td>").append("操作系统"))
 				.append($("<td>").append(result.name+" "+result.version)));
@@ -99,7 +99,7 @@ function showOperatingSystem(){
 }
 
 function showRuntime(){
-	$.post("/jmx/runtime.json?jvmId="+jvmId, {}, function(result) {
+	$.post("/ZConsole/jmx/runtime.json?jvmId="+jvmId, {}, function(result) {
 		runtime.append($("<tr>")
 				.append($("<td>").append("pid"))
 				.append($("<td>").append(result.pid)));
@@ -252,7 +252,7 @@ function showRuntime(){
 			var hotSpotDiagnosticTitle = $("<td>");
 			var hotSpotDiagnosticValue = $("<td>");
 			runtime.append($("<tr>").append(hotSpotDiagnosticTitle).append(hotSpotDiagnosticValue));
-			$.post("/jmx//hotSpotDiagnostic.json?jvmId="+jvmId, {}, function(result1) {
+			$.post("/ZConsole/jmx//hotSpotDiagnostic.json?jvmId="+jvmId, {}, function(result1) {
 				if (result1.code == 1 && result1.data != null) {
 					hotSpotDiagnosticTitle.append("诊断参数");
 					for(var i in result1.data){
