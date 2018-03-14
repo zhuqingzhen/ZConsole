@@ -7,7 +7,7 @@ management:
     enabled: false
 server:
   context-path: /ZConsole
-  port: 8080
+  port: 666
   session-timeout: 30
   tomcat:
     max-threads: 800
