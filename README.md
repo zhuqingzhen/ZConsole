@@ -46,7 +46,7 @@ jdk1.8，依赖jdk的lib目录下的tool.jar；
   -Dcom.sun.management.jmxremote.ssl=false
   -Dcom.sun.management.jmxremote.authenticate=false
 ```
-连接与ZConsole部署在同一台服务器上的jvm，无需做任何配置；
+连接与ZConsole部署在同一台服务器上的jvm，启动ZConsole用户要与被监控进程启动用户一样，其它无需做任何配置；
 
 
 
