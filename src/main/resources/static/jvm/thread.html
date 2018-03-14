@@ -91,8 +91,9 @@
   			<div class="tab-content">
   				<div role="tabpanel" class="tab-pane active" id="threadLockPanel">
     				<div class="col-md-12">
-    					<p>格式：等待锁线程数量--锁类型--锁id</p>
+    					<p>辅助排查潜在性能问题，锁的等待线程越多，越有可能是性能瓶颈</p>
     					<p>锁类型：SYN：synchronized锁;&nbsp;&nbsp; AQS：AbstractQueuedSynchronizer锁; &nbsp;&nbsp;LSP：LockSupport.park(); &nbsp;&nbsp;N：未知<p>
+    					<p>格式：等待锁线程数量--锁类型--锁id</p>
     				</div>
     				<div class="col-md-3" id ="lockLeft">
   					</div>
