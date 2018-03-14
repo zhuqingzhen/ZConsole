@@ -117,6 +117,9 @@ public class JMXClient {
 		List<VirtualMachineDescriptor> vms = VirtualMachine.list();
 		List<LocalVMInfo> vmList = new ArrayList<LocalVMInfo>();
 		for (VirtualMachineDescriptor desc : vms) {
+			if(JVMManager.get(Long.valueOf("-" + desc.id())) != null ){
+				continue;
+			}
 			VirtualMachine vm;
 			try {
 				vm = VirtualMachine.attach(desc);
