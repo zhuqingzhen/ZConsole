@@ -162,7 +162,11 @@ vertical-align: middle;
 					"title" : jvm.name
 				}).append(jvm.name.substring(0, 50) + "..."));
 			} else {
-				tr.append($("<td>").append(jvm.name+" ("+jvm.os+"－jdk"+jvm.jdk+")"));
+				var addr = "";
+				if(jvm.id>0){
+					addr = jvm.ip+":"+jvm.port
+				}
+				tr.append($("<td>").append(jvm.name+" ("+jvm.os+"－jdk"+jvm.jdk+")"+addr));
 			}
 			tr.append($("<td>").append(jvm.taskNames==null?"无":jvm.taskNames));
 			tr.append($("<td>").append(jvm.connected ? "正常" : "断开"));

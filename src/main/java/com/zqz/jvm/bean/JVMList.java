@@ -12,6 +12,8 @@ public class JVMList {
 	private String jdk;
 	private String os;
 	private String[] taskNames;
+	private String ip;
+	private String port;
 	
 	public String getJdk() {
 		return jdk;
@@ -49,6 +51,17 @@ public class JVMList {
 	public void setTaskNames(String[] taskNames) {
 		this.taskNames = taskNames;
 	}
-	
+	public String getIp() {
+		return ip;
+	}
+	public void setIp(String ip) {
+		this.ip = ip;
+	}
+	public String getPort() {
+		return port;
+	}
+	public void setPort(String port) {
+		this.port = port;
+	}
 	
 }

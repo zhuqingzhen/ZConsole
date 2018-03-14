@@ -101,6 +101,8 @@ public class JVMService {
     	jvmList.setId(String.valueOf(jvmEntity.getId()));
 		jvmList.setConnected(jvm.getClient().isConnected());
 		jvmList.setTaskNames(ZQZTaskManager.getJobNames(id));
+		jvmList.setIp(jvmEntity.getIp());
+		jvmList.setPort(String.valueOf(jvmEntity.getPort()));
 		return jvmList;
     }
 	

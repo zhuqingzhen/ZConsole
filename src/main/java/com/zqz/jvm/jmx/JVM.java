@@ -474,7 +474,7 @@ public class JVM {
 	 * @throws Exception
 	 */
 	public String getJVMVersion() throws Exception{
-		if(jvmVersion == null){
+		if(jvmVersion == null && this.getClient().isConnected()){
 			this.jvmVersion = (String) MBeanUtil.getObjectNameValue(new ObjectName("java.lang:type=Runtime"), "SpecVersion", this);
 		}
 		return this.jvmVersion;
@@ -486,11 +486,13 @@ public class JVM {
 	 * @throws Exception
 	 */
 	public String getOperationVersion() throws Exception{
-		if(operationVersion == null){
+		if(operationVersion == null && this.getClient().isConnected()){
 			this.operationVersion =String.valueOf(MBeanUtil.getObjectNameValue(new ObjectName("java.lang:type=OperatingSystem"), "Name", this))+ String.valueOf(MBeanUtil.getObjectNameValue(new ObjectName("java.lang:type=OperatingSystem"), "Version", this));
 		}
 		return this.operationVersion;
 	}
+	
+	private  static ObjectName OBJECT_NAME_OperatingSystemInfo = null;
 	
 	/**
 	 * 获取OperatingSystem
@@ -498,19 +500,24 @@ public class JVM {
 	 * @throws Exception
 	 */
 	public  OperatingSystemInfo getOperatingSystemInfo() throws Exception{
+		if(! this.getClient().isConnected()){
+			return null;
+		}
+		if(OBJECT_NAME_OperatingSystemInfo == null){
+			OBJECT_NAME_OperatingSystemInfo =  new ObjectName("java.lang:type=OperatingSystem");
+		}
 		OperatingSystemInfo obj = new OperatingSystemInfo();
-		ObjectName objectName = new ObjectName("java.lang:type=OperatingSystem");
 		obj.setAvailableProcessors(
 					Short.parseShort(
 						String.valueOf( 
-								MBeanUtil.getObjectNameValue(objectName, "AvailableProcessors", this)
+								MBeanUtil.getObjectNameValue(OBJECT_NAME_OperatingSystemInfo, "AvailableProcessors", this)
 						)
 					)
 				);
 		obj.setFreePhysicalMemorySize(
 				Long.parseLong(
 					String.valueOf(
-							MBeanUtil.getObjectNameValue(objectName, "FreePhysicalMemorySize", this)
+							MBeanUtil.getObjectNameValue(OBJECT_NAME_OperatingSystemInfo, "FreePhysicalMemorySize", this)
 					)
 				)
 			);
@@ -518,38 +525,38 @@ public class JVM {
 		obj.setFreeSwapSpaceSize(
 				Long.parseLong(
 					String.valueOf( 
-							MBeanUtil.getObjectNameValue(objectName, "FreeSwapSpaceSize", this)
+							MBeanUtil.getObjectNameValue(OBJECT_NAME_OperatingSystemInfo, "FreeSwapSpaceSize", this)
 					)
 				)
 			);
 		obj.setTotalPhysicalMemorySize(
 				Long.parseLong(
 					String.valueOf( 
-							MBeanUtil.getObjectNameValue(objectName, "TotalPhysicalMemorySize", this)
+							MBeanUtil.getObjectNameValue(OBJECT_NAME_OperatingSystemInfo, "TotalPhysicalMemorySize", this)
 					)
 				)
 			);
 		obj.setTotalSwapSpaceSize(
 				Long.parseLong(
 					String.valueOf( 
-							MBeanUtil.getObjectNameValue(objectName, "TotalPhysicalMemorySize", this)
+							MBeanUtil.getObjectNameValue(OBJECT_NAME_OperatingSystemInfo, "TotalPhysicalMemorySize", this)
 					)
 				)
 			);
 		obj.setName(
 				String.valueOf( 
-					MBeanUtil.getObjectNameValue(objectName, "Name", this)
+					MBeanUtil.getObjectNameValue(OBJECT_NAME_OperatingSystemInfo, "Name", this)
 				)
 			);
 		obj.setVersion(
 				String.valueOf( 
-					MBeanUtil.getObjectNameValue(objectName, "Version", this)
+					MBeanUtil.getObjectNameValue(OBJECT_NAME_OperatingSystemInfo, "Version", this)
 				)
 			);
 		obj.setProcessCpuTime(
 				Long.parseLong(
 					String.valueOf(
-							MBeanUtil.getObjectNameValue(objectName, "ProcessCpuTime", this)
+							MBeanUtil.getObjectNameValue(OBJECT_NAME_OperatingSystemInfo, "ProcessCpuTime", this)
 					)
 				)
 			);
@@ -557,14 +564,14 @@ public class JVM {
 			obj.setMaxFileDescriptorCount(
 				Long.parseLong(
 					String.valueOf( 
-							MBeanUtil.getObjectNameValue(objectName, "MaxFileDescriptorCount", this)
+							MBeanUtil.getObjectNameValue(OBJECT_NAME_OperatingSystemInfo, "MaxFileDescriptorCount", this)
 					)
 				)
 			);
 			obj.setOpenFileDescriptorCount(
 				Long.parseLong(
 					String.valueOf( 
-							MBeanUtil.getObjectNameValue(objectName, "OpenFileDescriptorCount", this)
+							MBeanUtil.getObjectNameValue(OBJECT_NAME_OperatingSystemInfo, "OpenFileDescriptorCount", this)
 					)
 				)
 			);
@@ -575,19 +582,19 @@ public class JVM {
 		if(!obj.getName().toLowerCase().startsWith("win") && this.getJVMVersion().compareTo("1.6") >= 0){
 				obj.setSystemLoadAverage(
 					String.valueOf(
-						MBeanUtil.getObjectNameValue(objectName, "SystemLoadAverage", this)
+						MBeanUtil.getObjectNameValue(OBJECT_NAME_OperatingSystemInfo, "SystemLoadAverage", this)
 					)
 				);
 		}
 		if(this.getJVMVersion().compareTo("1.7") >= 0){
 			obj.setSystemCpuLoad(
 				String.valueOf( 
-					MBeanUtil.getObjectNameValue(objectName, "SystemCpuLoad", this)
+					MBeanUtil.getObjectNameValue(OBJECT_NAME_OperatingSystemInfo, "SystemCpuLoad", this)
 				)
 			);
 			obj.setProcessCpuLoad(
 				String.valueOf( 
-					MBeanUtil.getObjectNameValue(objectName, "ProcessCpuLoad", this)
+					MBeanUtil.getObjectNameValue(OBJECT_NAME_OperatingSystemInfo, "ProcessCpuLoad", this)
 				)
 			);
 		}

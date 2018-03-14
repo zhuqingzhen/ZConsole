@@ -82,7 +82,13 @@ public class JVMManager {
 				jvm.setId(String.valueOf(tmp.getId()));
 				jvm.setName(tmp.getName());
 				jvm.setConnected(tmp.getClient().isConnected());
+				//如果是远程jvm则返回端口号和ip；
+				if(tmp.getId()>0){
+					jvm.setIp(tmp.getClient().getIp());
+					jvm.setPort(tmp.getClient().getPort());
+				}
 				try {
+					if(jvm.isConnected())
 					jvm.setJdk(tmp.getJVMVersion());
 				} catch (Exception e) {
 					e.printStackTrace();
