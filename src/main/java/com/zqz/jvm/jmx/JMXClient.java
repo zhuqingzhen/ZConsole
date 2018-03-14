@@ -45,7 +45,7 @@ public class JMXClient {
 
 	/** jmx连接断开时监听器返回的type **/
 	private final static String CONNECT_CLOSED = "jmx.remote.connection.closed";
-
+	
 	/** 关联的jvmId **/
 	private long jvmId;
 	/** 当前虚拟机的jmx连接 **/
@@ -53,6 +53,8 @@ public class JMXClient {
 	private MBeanServerConnection mbsc;
 
 	/** jmx连接信息 **/
+	private String ip = null;
+	private String port = null;
 	private JMXServiceURL url = null;
 	private Map<String, String[]> environment = null;
 
@@ -229,6 +231,8 @@ public class JMXClient {
 	 * @return
 	 */
 	public boolean connect(String ip, String jmxport, String userName, String password) {
+		this.ip = ip;
+		this.port = jmxport;
 		Map<String, String[]> environment = null;
 		if (userName != null && !userName.equals("")) {
 			environment = new HashMap<String, String[]>();
@@ -408,4 +412,25 @@ public class JMXClient {
 	public void setMbsc(MBeanServerConnection mbsc) {
 		this.mbsc = mbsc;
 	}
+
+
+	public String getIp() {
+		return ip;
+	}
+
+
+	public void setIp(String ip) {
+		this.ip = ip;
+	}
+
+
+	public String getPort() {
+		return port;
+	}
+
+
+	public void setPort(String port) {
+		this.port = port;
+	}
+	
 }

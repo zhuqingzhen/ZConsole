@@ -49,6 +49,25 @@ public class JVMManager {
 	}
 	
 	/**
+	 * 检查jvm是否已经添加过
+	 * @param ip
+	 * @param port
+	 * @return
+	 */
+	public static boolean checkRemoteExist(String ip,String port){
+		JVM tmp;
+		for(Map.Entry<Long, JVM> entry : JVMS.entrySet()){
+			tmp = entry.getValue();
+			if(tmp.getId()>0){
+				if(tmp.getClient().getIp().equals(ip) && tmp.getClient().getPort().equals(port)){
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	/**
 	 * 获取全部jvm列表
 	 * @return
 	 */

@@ -75,6 +75,9 @@ public class JVMService {
 	 * @return
 	 */
 	public JVMList addRemoteJVM(JVMEntity jvmEntity) {
+		if(JVMManager.checkRemoteExist(jvmEntity.getIp(), String.valueOf(jvmEntity.getPort()))){
+			return null;
+		}
     	long id=IdWorker.nextId();
     	if(id > 0 ){
     		jvmEntity.setId(id);
