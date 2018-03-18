@@ -26,14 +26,15 @@ vertical-align: middle;
 	<div class="container">
 
 		<div class="row">
-			<div class="col-xs-12 col-md-9">
+			<div class="col-xs-12 col-md-8">
 				<h1>jvm 列表</h1>
 			</div>
-			<div class="col-xs-12 col-md-3" style="line-height: 75px">
+			<div class="col-xs-12 col-md-4" style="line-height: 75px">
 				<a class="btn btn-default" href="#" role="button"
-					data-toggle="modal" data-target="#addRemoteJvm">添加远程jvm</a> <a
-					class="btn btn-default" href="#" role="button" data-toggle="modal"
+					data-toggle="modal" data-target="#addRemoteJvm">添加远程jvm</a> 
+				<a class="btn btn-default" href="#" role="button" data-toggle="modal"
 					data-target="#addLocalJVMDialog" id="addLocalJVMBtn">添加本地jvm</a>
+				<a class="btn btn-default" href="#" role="button"  id="btraceBtn">btrace</a>
 			</div>
 		</div>
 		<table id="jvms" class="table table-striped  table-hover">
@@ -222,7 +223,7 @@ vertical-align: middle;
 					name : jvm.name
 				}).append("class Histogram"));
 				
-				if( jvm.id.startWith("-") >-1){
+				if( jvm.id.startWith("-") < 0){
 					operation.append($("<a>", {
 						class : "btn btn-default jstatBtn",
 						href : "#",
@@ -253,7 +254,11 @@ vertical-align: middle;
 		}
 
 		show();
-
+		
+		
+		$("#btraceBtn").click(function() {
+			window.open("../btrace/BTraceScriptGenerator.html");
+		});
 		$("#addJVMBtn").click(function() {
 			var jvm = {}
 			jvm.ip = $("#jvm_jmx_ip").val();
