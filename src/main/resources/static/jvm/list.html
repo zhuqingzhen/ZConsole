@@ -222,15 +222,15 @@ vertical-align: middle;
 					name : jvm.name
 				}).append("class Histogram"));
 				
-
-				operation.append($("<a>", {
-					class : "btn btn-default jstatBtn",
-					href : "#",
-					role : "button",
-					jvmId : jvm.id,
-					name : jvm.name
-				}).append("jstat"));
-				
+				if( jvm.id.startWith("-") >-1){
+					operation.append($("<a>", {
+						class : "btn btn-default jstatBtn",
+						href : "#",
+						role : "button",
+						jvmId : jvm.id,
+						name : jvm.name
+					}).append("jstat"));
+				}
 				operation.append($("<a>", {
 					class : "btn btn-default mbeanBtn",
 					href : "#",
